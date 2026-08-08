@@ -1,0 +1,44 @@
+# SHEAZ — .gitignore racine (repo sheaz)
+# Périmètre versionné : mobile/ (app) + supabase/ (migrations). Docs stratégie restent locaux.
+
+# Node
+node_modules/
+
+# Env & secrets (jamais de clés dans le repo)
+.env
+.env.*
+!.env.example
+
+# Expo / RN
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native (build local)
+/ios
+/android
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# TypeScript
+*.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docs internes — stratégie & design (non versionnés)
+00-brief-projet.md
+01-livrables.md
+02-resume-executif.md
+03-cadrage-produit.md
+04-identite-marque.md
+05-charte-graphique.md
+06-user-flows.md
+07-specifications-techniques.md
+brand/
+design/

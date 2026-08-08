@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "Sheaz",
+    "slug": "sheaz",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "sheaz",
+    "splash": {
+      "backgroundColor": "#0E1B2C",
+      "resizeMode": "contain"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sheaz.app",
+      "infoPlist": {
+        "NSHealthShareUsageDescription": "Sheaz synchronise vos données de santé (pas, sommeil, entraînements) pour construire votre équilibre — uniquement avec votre accord.",
+        "NSHealthUpdateUsageDescription": "Sheaz enregistre vos séances dans l'app Santé pour centraliser votre suivi."
+      }
+    },
+    "android": {
+      "package": "com.sheaz.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0E1B2C",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.ACTIVITY_RECOGNITION",
+        "android.permission.POST_NOTIFICATIONS"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-notifications"
+    ]
+  }
+}
