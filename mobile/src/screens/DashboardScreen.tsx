@@ -75,6 +75,25 @@ export default function DashboardScreen() {
         </>
       )}
 
+      <Text style={styles.section}>Vos espaces</Text>
+      <View style={styles.spacesRow}>
+        <TouchableOpacity style={styles.spaceCard} activeOpacity={0.85} onPress={() => navigation.navigate('Alimentation')}>
+          <IconBadge icon="food-apple" color={colors.gold} size={38} />
+          <Text style={styles.spaceTitle}>Assiette</Text>
+          <Text style={styles.spaceSub}>Manger mieux</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.spaceCard} activeOpacity={0.85} onPress={() => navigation.navigate('Objectifs')}>
+          <IconBadge icon="target" color={colors.sport} size={38} />
+          <Text style={styles.spaceTitle}>Objectifs</Text>
+          <Text style={styles.spaceSub}>Progresser</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.spaceCard} activeOpacity={0.85} onPress={() => navigation.navigate('Jouer')}>
+          <IconBadge icon="gamepad-variant" color={colors.purple} size={38} />
+          <Text style={styles.spaceTitle}>Jouer</Text>
+          <Text style={styles.spaceSub}>Se divertir</Text>
+        </TouchableOpacity>
+      </View>
+
       <Text style={styles.section}>À faire ce soir</Text>
 
       {/* Bandeau Premium (gating S10) */}
@@ -163,6 +182,20 @@ const styles = StyleSheet.create({
   },
   premiumText: { ...typography.label, fontSize: 15, color: colors.white, flex: 1 },
   premiumSub: { ...typography.body, fontSize: 11, color: 'rgba(255,255,255,0.6)' },
+  spacesRow: { flexDirection: 'row', gap: 10 },
+  spaceCard: {
+    flex: 1,
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: radii.lg,
+    padding: spacing.md,
+    alignItems: 'center',
+    gap: 6,
+    ...shadows.card,
+  },
+  spaceTitle: { ...typography.label, fontSize: 14, color: colors.ink },
+  spaceSub: { ...typography.caption, fontSize: 10, color: colors.muted },
   rewardsLink: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -4,6 +4,9 @@ export type RootStackParamList = {
   Recompenses: undefined;
   Premium: undefined;
   Mental: undefined;
+  Alimentation: undefined;
+  Objectifs: undefined;
+  Jouer: undefined;
 };
 
 export type TabParamList = {
