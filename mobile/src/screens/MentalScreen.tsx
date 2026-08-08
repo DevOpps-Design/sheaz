@@ -1,34 +1,31 @@
 /**
- * SHEAZ — Module Mental
- * Humeur du jour, méditations guidées, routine du soir.
- * Squelette S5 — données fictives de démonstration.
+ * SHEAZ — Module Mental — connecté
+ * Humeur réelle (insert mood_entries) + méditations (démo).
  */
-import React, { useState } from 'react';
+import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import ScreenHeader from '../components/ScreenHeader';
+import { useMood } from '../hooks/useData';
 import { colors, radii, spacing, typography } from '../theme';
 
 const MOODS = ['😣', '😕', '😐', '🙂', '😌', '🤩'];
 
 export default function MentalScreen() {
-  const [mood, setMood] = useState<number | null>(null);
+  const { mood, setMood } = useMood();
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <ScreenHeader title="Mental" subtitle="Comment vous sentez-vous ?" avatar="C" />
+      <ScreenHeader title="Mental" subtitle="Comment vous sentez-vous ?" />
 
       <View style={styles.moodCard}>
         {MOODS.map((emoji, index) => (
-          <TouchableOpacity
-            key={emoji}
-            style={[styles.mood, mood === index && styles.moodSel]}
-            onPress={() => setMood(index)}
-          >
+          <TouchableOpacity key={emoji} style={[styles.mood, mood === index && styles.moodSel]} onPress={() => setMood(index)}>
             <Text style={[styles.moodEmoji, mood === index && styles.moodEmojiSel]}>{emoji}</Text>
           </TouchableOpacity>
         ))}
       </View>
+      {mood !== null ? <Text style={styles.saved}>Humeur notée ✅</Text> : null}
 
       <Text style={styles.section}>Méditations guidées</Text>
       {meditations.map((med) => (
@@ -71,16 +68,11 @@ const styles = StyleSheet.create({
     borderRadius: radii.lg,
     padding: spacing.lg,
   },
-  mood: {
-    padding: 6,
-    borderRadius: radii.md,
-  },
-  moodSel: {
-    backgroundColor: colors.sportSoft,
-    transform: [{ scale: 1.15 }],
-  },
+  mood: { padding: 6, borderRadius: radii.md },
+  moodSel: { backgroundColor: colors.sportSoft, transform: [{ scale: 1.15 }] },
   moodEmoji: { fontSize: 32 },
   moodEmojiSel: { fontSize: 34 },
+  saved: { ...typography.label, fontSize: 12, color: colors.volt, textAlign: 'center', marginTop: 10 },
   section: {
     ...typography.label,
     fontSize: 12,

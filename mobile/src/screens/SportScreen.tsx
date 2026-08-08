@@ -1,48 +1,34 @@
 /**
- * SHEAZ — Module Sport
- * Bloc séance du jour (fond encre) + stats + plan de semaine.
- * Squelette S5 — données fictives de démonstration.
+ * SHEAZ — Module Sport — connecté
+ * Chrono réel → workout_sessions (start/stop persistés en base).
  */
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import ScreenHeader from '../components/ScreenHeader';
+import { useWorkoutSession } from '../hooks/useData';
 import { colors, radii, spacing, typography } from '../theme';
 
 export default function SportScreen() {
-  const [running, setRunning] = useState(false);
-  const [secs, setSecs] = useState(0);
-  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const { running, seconds, loading, start, stop } = useWorkoutSession();
 
-  useEffect(() => {
-    return () => {
-      if (timer.current) clearInterval(timer.current);
-    };
-  }, []);
-
-  const toggleTimer = () => {
-    if (running) {
-      if (timer.current) clearInterval(timer.current);
-      setRunning(false);
-    } else {
-      timer.current = setInterval(() => setSecs((s) => s + 1), 1000);
-      setRunning(true);
-    }
-  };
-
-  const mm = String(Math.floor(secs / 60)).padStart(2, '0');
-  const ss = String(secs % 60).padStart(2, '0');
+  const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
+  const ss = String(seconds % 60).padStart(2, '0');
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <ScreenHeader title="Sport" subtitle="Séance du jour · Force & Mobilité" avatar="C" />
+      <ScreenHeader title="Sport" subtitle={running ? 'Séance en cours 🔥' : 'Prêt pour la séance ?'} />
 
       <View style={styles.session}>
-        <Text style={styles.sessionTtl}>Séance d'aujourd'hui</Text>
+        <Text style={styles.sessionTtl}>{running ? 'Séance en cours' : 'Séance du jour'}</Text>
         <Text style={styles.time}>{mm}:{ss}</Text>
         <Text style={styles.sessionLbl}>Force · 6 exercices · 45 min</Text>
-        <TouchableOpacity style={styles.pause} onPress={toggleTimer}>
-          <Text style={styles.pauseText}>{running ? 'Pause' : secs > 0 ? 'Reprendre' : 'Démarrer'}</Text>
+        <TouchableOpacity
+          style={[styles.pause, running && styles.pauseStop]}
+          onPress={running ? stop : start}
+          disabled={loading}
+        >
+          <Text style={styles.pauseText}>{running ? 'Terminer' : 'Démarrer'}</Text>
         </TouchableOpacity>
       </View>
 
@@ -57,7 +43,7 @@ export default function SportScreen() {
         </View>
         <View style={styles.statCard}>
           <Text style={styles.statK}>Calories</Text>
-          <Text style={styles.statV}>412 <Text style={styles.statSmall}>kcal</Text></Text>
+          <Text style={styles.statV}>{Math.round(seconds * 0.09)} <Text style={styles.statSmall}>kcal</Text></Text>
         </View>
       </View>
 
@@ -108,6 +94,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     paddingVertical: 12,
   },
+  pauseStop: { backgroundColor: colors.sport, borderColor: colors.sport },
   pauseText: { ...typography.label, fontSize: 15, color: colors.white },
   statRow: { flexDirection: 'row', gap: 11, marginBottom: spacing.lg },
   statCard: {
@@ -118,13 +105,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.md,
     padding: spacing.lg,
   },
-  statK: {
-    ...typography.label,
-    fontSize: 10.5,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    color: colors.muted,
-  },
+  statK: { ...typography.label, fontSize: 10.5, letterSpacing: 0.8, textTransform: 'uppercase', color: colors.muted },
   statV: { ...typography.display, fontSize: 21, color: colors.ink, marginTop: 4 },
   statSmall: { fontSize: 12, color: colors.muted, fontWeight: '500' },
   section: {

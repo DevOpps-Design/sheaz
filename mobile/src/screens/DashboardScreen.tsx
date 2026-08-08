@@ -1,69 +1,80 @@
 /**
- * SHEAZ — Dashboard « Jour »
- * Les 3 piliers (Sport · Bien-être · Mental) en cartes aérées + action du soir.
- * Squelette S5 — données fictives de démonstration.
+ * SHEAZ — Dashboard « Jour » (connecté)
+ * Les 3 piliers calculés depuis les vraies données Supabase + action du soir.
  */
-import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import PillarCard from '../components/PillarCard';
 import ScreenHeader from '../components/ScreenHeader';
+import { useDashboard } from '../hooks/useData';
+import { supabase } from '../lib/supabase';
 import { colors, radii, spacing, typography } from '../theme';
 import type { RootStackParamList } from '../navigation/types';
 
 export default function DashboardScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <ScreenHeader
-        title="Votre"
-        accent="équilibre"
-        subtitle="Bonjour, Credo 🌞"
-        avatar="C"
-      />
+  const dashboard = useDashboard();
+  const [name, setName] = useState('');
 
-      <PillarCard
-        title="Sport"
-        description="Séance de ce matin · 45 min"
-        percent={70}
-        color={colors.sport}
-        chip="Objectif : 3/4 séances"
-        chipColor={colors.sport}
-      />
-      <PillarCard
-        title="Bien-être"
-        description="3 habitudes sur 5 accomplies"
-        percent={60}
-        color={colors.blue}
-        chip="Sommeil : 7 h 30 ⭐"
-        chipColor={colors.blue}
-      />
-      <PillarCard
-        title="Mental"
-        description="Méditation du soir planifiée"
-        percent={40}
-        color={colors.purple}
-        chip="Humeur : Serein 😌"
-        chipColor={colors.purple}
-      />
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      const meta = data.user?.user_metadata as Record<string, string> | undefined;
+      setName(meta?.display_name || data.user?.email?.split('@')[0] || 'Credo');
+    });
+  }, []);
+
+  return (
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl refreshing={dashboard.loading} onRefresh={dashboard.refresh} tintColor={colors.sport} />
+      }
+    >
+      <ScreenHeader title="Votre" accent="équilibre" subtitle={`Bonjour, ${name} 🌞`} avatar={name.slice(0, 1).toUpperCase()} />
+
+      {dashboard.loading ? (
+        <ActivityIndicator color={colors.sport} style={{ marginTop: 30 }} />
+      ) : (
+        <>
+          <PillarCard
+            title="Sport"
+            description={dashboard.sport.label}
+            percent={dashboard.sport.percent}
+            color={colors.sport}
+            chip="Objectif hebdo"
+            chipColor={colors.sport}
+          />
+          <PillarCard
+            title="Corps"
+            description={dashboard.corps.label}
+            percent={dashboard.corps.percent}
+            color={colors.blue}
+            chip="Aujourd'hui"
+            chipColor={colors.blue}
+          />
+          <PillarCard
+            title="Mental"
+            description={dashboard.mental.label}
+            percent={dashboard.mental.percent}
+            color={colors.purple}
+            chip="Aujourd'hui"
+            chipColor={colors.purple}
+          />
+        </>
+      )}
 
       <Text style={styles.section}>À faire ce soir</Text>
-      <TouchableOpacity
-        style={styles.ghost}
-        activeOpacity={0.8}
-        onPress={() => navigation.navigate('Mental')}
-      >
+      <TouchableOpacity style={styles.ghost} activeOpacity={0.8} onPress={() => navigation.navigate('Mental')}>
         <Text style={styles.ghostText}>🧘 Méditation · 10 min</Text>
         <Text style={styles.ghostArrow}>→</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.rewardsLink}
-        activeOpacity={0.8}
-        onPress={() => navigation.navigate('Recompenses')}
-      >
+      <TouchableOpacity style={styles.rewardsLink} activeOpacity={0.8} onPress={() => navigation.navigate('Recompenses')}>
         <Text style={styles.rewardsText}>🏆 Mes récompenses</Text>
         <Text style={styles.ghostArrow}>→</Text>
       </TouchableOpacity>
@@ -72,14 +83,8 @@ export default function DashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.paper,
-  },
-  content: {
-    padding: spacing.xl,
-    paddingBottom: 40,
-  },
+  screen: { flex: 1, backgroundColor: colors.paper },
+  content: { padding: spacing.xl, paddingBottom: 40 },
   section: {
     ...typography.label,
     fontSize: 12,
@@ -98,17 +103,8 @@ const styles = StyleSheet.create({
     borderRadius: radii.lg,
     padding: spacing.lg,
   },
-  ghostText: {
-    ...typography.label,
-    fontSize: 15,
-    color: colors.ink,
-    flex: 1,
-  },
-  ghostArrow: {
-    ...typography.display,
-    fontSize: 16,
-    color: colors.muted,
-  },
+  ghostText: { ...typography.label, fontSize: 15, color: colors.ink, flex: 1 },
+  ghostArrow: { ...typography.display, fontSize: 16, color: colors.muted },
   rewardsLink: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -119,10 +115,5 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     marginTop: spacing.md,
   },
-  rewardsText: {
-    ...typography.label,
-    fontSize: 15,
-    color: colors.ink,
-    flex: 1,
-  },
+  rewardsText: { ...typography.label, fontSize: 15, color: colors.ink, flex: 1 },
 });
