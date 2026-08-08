@@ -36,6 +36,7 @@ async function main() {
   await sb.from('sleep_entries').delete().eq('user_id', uid);
   await sb.from('hydration_entries').delete().eq('user_id', uid);
   await sb.from('body_metrics').delete().eq('user_id', uid);
+  await sb.from('meditation_sessions').delete().eq('user_id', uid);
 
   // 2. Objectifs (avec user_id — le fix S7)
   const goals = [
@@ -88,6 +89,13 @@ async function main() {
     '| hydratation:', we2 ? '❌' : `✅ ${hydra.length}`,
     '| poids:', me2 ? '❌' : `✅ ${weights.length}`,
   );
+
+  // 6. S9 — Mental : méditation (insert + lecture RLS)
+  const { error: mde } = await sb.from('meditation_sessions').insert({
+    user_id: uid, title: 'Respiration du soir', duration_sec: 300,
+  });
+  const { data: meds, error: md2 } = await sb.from('meditation_sessions').select('title,duration_sec').eq('user_id', uid);
+  console.log('S9 mental — méditation:', mde ? '❌ ' + mde.message : '✅ 5 min enregistrée', '| lecture:', md2 ? '❌' : `✅ ${meds.length}`);
 }
 
 main().catch((e) => {

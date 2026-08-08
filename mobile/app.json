@@ -35,6 +35,16 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "color": "#FF5A1F",
+          "defaultChannel": "rappels"
+        }
+      ]
+    ]
   }
 }
