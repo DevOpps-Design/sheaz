@@ -192,7 +192,7 @@ declare
   t text;
 begin
   foreach t in array array[
-    'goals', 'habits', 'habit_logs', 'workouts', 'workout_sessions',
+    'goals', 'habits', 'workouts', 'workout_sessions',
     'mood_entries', 'meditation_sessions', 'body_metrics', 'sleep_entries',
     'hydration_entries', 'subscriptions', 'push_tokens'
   ] loop
@@ -202,6 +202,20 @@ begin
     execute format('create policy "own_delete_%s" on public.%I for delete using (user_id = auth.uid())', t, t);
   end loop;
 end $$;
+
+-- habit_logs : pas de user_id direct — RLS via la table habits (sous-requête)
+create policy "own_select_habit_logs" on public.habit_logs for select using (
+  exists (select 1 from public.habits h where h.id = habit_logs.habit_id and h.user_id = auth.uid())
+);
+create policy "own_insert_habit_logs" on public.habit_logs for insert with check (
+  exists (select 1 from public.habits h where h.id = habit_logs.habit_id and h.user_id = auth.uid())
+);
+create policy "own_update_habit_logs" on public.habit_logs for update using (
+  exists (select 1 from public.habits h where h.id = habit_logs.habit_id and h.user_id = auth.uid())
+);
+create policy "own_delete_habit_logs" on public.habit_logs for delete using (
+  exists (select 1 from public.habits h where h.id = habit_logs.habit_id and h.user_id = auth.uid())
+);
 
 -- profiles : select/update par le propriétaire, insert au signup
 create policy "profile_select" on public.profiles for select using (id = auth.uid());
