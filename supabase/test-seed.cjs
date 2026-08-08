@@ -13,11 +13,10 @@ const ANON = env.match(/SUPABASE_ANON_KEY=(.+)/)?.[1]?.trim();
 if (!ANON) throw new Error('Clé anon introuvable dans mobile/.env');
 
 async function main() {
+  const email = process.argv[2] || 'test3@sheaz.app';
+  const password = process.argv[3] || 'Test1234!';
   const sb = createClient(URL, ANON);
-  const { data, error } = await sb.auth.signInWithPassword({
-    email: 'test3@sheaz.app',
-    password: 'Test1234!',
-  });
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
   if (error) throw error;
   const uid = data.user.id;
   console.log('✅ session OK:', data.user.email, '|', uid.slice(0, 8));
