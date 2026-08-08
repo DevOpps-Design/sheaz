@@ -3,10 +3,10 @@
  * Stack racine (Tabs + écrans plein écran) + bottom tabs (4 onglets).
  */
 import React from 'react';
-import { Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { colors, typography } from '../theme';
 import DashboardScreen from '../screens/DashboardScreen';
@@ -20,11 +20,14 @@ import type { RootStackParamList, TabParamList } from './types';
 const Tab = createBottomTabNavigator<TabParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-const TAB_ICONS: Record<keyof TabParamList, string> = {
-  Jour: '🏠',
-  Sport: '🏋️',
-  BienEtre: '💧',
-  MentalTab: '🧠',
+type IconName = keyof typeof MaterialCommunityIcons.glyphMap;
+
+/** Icônes MaterialCommunityIcons — variante outline pour l'état inactif quand elle existe */
+const TAB_ICONS: Record<keyof TabParamList, { active: IconName; inactive?: IconName }> = {
+  Jour: { active: 'home-variant', inactive: 'home-variant-outline' },
+  Sport: { active: 'dumbbell' },
+  BienEtre: { active: 'water', inactive: 'water-outline' },
+  MentalTab: { active: 'meditation' },
 };
 
 function MainTabs() {
@@ -42,11 +45,11 @@ function MainTabs() {
           paddingBottom: 22,
           paddingTop: 8,
         },
-        tabBarIcon: ({ focused }) => (
-          <Text style={{ fontSize: 21, opacity: focused ? 1 : 0.55 }}>
-            {TAB_ICONS[route.name]}
-          </Text>
-        ),
+        tabBarIcon: ({ focused, color }) => {
+          const icon = TAB_ICONS[route.name];
+          const name = focused ? icon.active : (icon.inactive ?? icon.active);
+          return <MaterialCommunityIcons name={name} size={24} color={color} />;
+        },
       })}
     >
       <Tab.Screen name="Jour" component={DashboardScreen} />
