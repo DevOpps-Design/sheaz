@@ -4,10 +4,12 @@
  */
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import ScreenHeader from '../components/ScreenHeader';
+import IconBadge from '../components/IconBadge';
 import { useWorkoutSession } from '../hooks/useData';
-import { colors, radii, spacing, typography } from '../theme';
+import { colors, radii, shadows, spacing, typography } from '../theme';
 
 export default function SportScreen() {
   const { running, seconds, loading, start, stop } = useWorkoutSession();
@@ -17,9 +19,10 @@ export default function SportScreen() {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <ScreenHeader title="Sport" subtitle={running ? 'Séance en cours 🔥' : 'Prêt pour la séance ?'} />
+      <ScreenHeader title="Sport" subtitle={running ? 'Séance en cours' : 'Prêt pour la séance ?'} />
 
       <View style={styles.session}>
+        <IconBadge icon="dumbbell" color={colors.sport} size={54} />
         <Text style={styles.sessionTtl}>{running ? 'Séance en cours' : 'Séance du jour'}</Text>
         <Text style={styles.time}>{mm}:{ss}</Text>
         <Text style={styles.sessionLbl}>Force · 6 exercices · 45 min</Text>
@@ -28,6 +31,7 @@ export default function SportScreen() {
           onPress={running ? stop : start}
           disabled={loading}
         >
+          <MaterialCommunityIcons name={running ? 'stop-circle' : 'play-circle'} size={20} color={colors.white} />
           <Text style={styles.pauseText}>{running ? 'Terminer' : 'Démarrer'}</Text>
         </TouchableOpacity>
       </View>
@@ -39,7 +43,7 @@ export default function SportScreen() {
         </View>
         <View style={styles.statCard}>
           <Text style={styles.statK}>Streak</Text>
-          <Text style={styles.statV}>12 <Text style={styles.statSmall}>🔥</Text></Text>
+          <Text style={styles.statV}>12 <MaterialCommunityIcons name="fire" size={15} color={colors.sport} /></Text>
         </View>
         <View style={styles.statCard}>
           <Text style={styles.statK}>Calories</Text>
@@ -51,13 +55,19 @@ export default function SportScreen() {
       {week.map((day) => (
         <View key={day.name} style={[styles.weekRow, day.today && styles.weekToday]}>
           <View style={[styles.check, day.done && styles.checkDone]}>
-            {day.done ? <Text style={styles.checkText}>✓</Text> : null}
+            {day.done ? <MaterialCommunityIcons name="check" size={15} color={colors.white} /> : null}
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.weekName}>{day.name}</Text>
             <Text style={styles.weekMeta}>{day.meta}</Text>
           </View>
-          <Text style={styles.weekTime}>{day.time}</Text>
+          {day.time === 'check' ? (
+            <MaterialCommunityIcons name="check-circle" size={20} color={colors.volt} />
+          ) : day.time === 'play' ? (
+            <MaterialCommunityIcons name="play-circle" size={20} color={colors.sport} />
+          ) : (
+            <Text style={styles.weekTime}>{day.time}</Text>
+          )}
         </View>
       ))}
     </ScrollView>
@@ -65,9 +75,9 @@ export default function SportScreen() {
 }
 
 const week = [
-  { name: 'Lundi · Force', meta: '45 min · Terminé', time: '✓', done: true, today: false },
-  { name: 'Mardi · Cardio léger', meta: '30 min · Terminé', time: '✓', done: true, today: false },
-  { name: 'Jeudi · Mobilité', meta: '20 min · Aujourd’hui', time: '▶', done: false, today: true },
+  { name: 'Lundi · Force', meta: '45 min · Terminé', time: 'check', done: true, today: false },
+  { name: 'Mardi · Cardio léger', meta: '30 min · Terminé', time: 'check', done: true, today: false },
+  { name: 'Jeudi · Mobilité', meta: '20 min · Aujourd’hui', time: 'play', done: false, today: true },
   { name: 'Samedi · Endurance', meta: '60 min', time: '—', done: false, today: false },
 ];
 
@@ -87,6 +97,9 @@ const styles = StyleSheet.create({
   sessionLbl: { ...typography.body, fontSize: 13, color: 'rgba(255,255,255,0.6)' },
   pause: {
     marginTop: 22,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
     backgroundColor: 'rgba(255,255,255,0.13)',
     borderWidth: 1.5,
     borderColor: 'rgba(255,255,255,0.32)',
@@ -94,7 +107,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     paddingVertical: 12,
   },
-  pauseStop: { backgroundColor: colors.sport, borderColor: colors.sport },
+  pauseStop: { backgroundColor: colors.sport, borderColor: colors.sport, ...shadows.glow(colors.sport) },
   pauseText: { ...typography.label, fontSize: 15, color: colors.white },
   statRow: { flexDirection: 'row', gap: 11, marginBottom: spacing.lg },
   statCard: {
@@ -104,6 +117,7 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     borderRadius: radii.md,
     padding: spacing.lg,
+    ...shadows.card,
   },
   statK: { ...typography.label, fontSize: 10.5, letterSpacing: 0.8, textTransform: 'uppercase', color: colors.muted },
   statV: { ...typography.display, fontSize: 21, color: colors.ink, marginTop: 4 },

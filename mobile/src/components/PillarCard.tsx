@@ -7,6 +7,8 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
+import IconBadge from './IconBadge';
+import type { IconName } from './IconBadge';
 import { colors, radii, shadows, spacing, typography } from '../theme';
 
 interface PillarCardProps {
@@ -16,6 +18,8 @@ interface PillarCardProps {
   color: string;
   chip: string;
   chipColor: string;
+  /** Icône affichée dans l'anneau (badge relief) */
+  icon?: IconName;
 }
 
 export default function PillarCard({
@@ -25,6 +29,7 @@ export default function PillarCard({
   color,
   chip,
   chipColor,
+  icon,
 }: PillarCardProps) {
   const size = 88;
   const stroke = 9;
@@ -33,7 +38,7 @@ export default function PillarCard({
   const offset = circumference * (1 - percent / 100);
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, shadows.lift(color)]}>
       <View style={styles.top}>
         <View style={{ width: size, height: size }}>
           <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: [{ rotate: '-90deg' }] }}>
@@ -51,7 +56,9 @@ export default function PillarCard({
             />
           </Svg>
           <View style={styles.pctWrap}>
-            <Text style={styles.pct}>{percent}%</Text>
+            {icon ? <IconBadge icon={icon} color={color} size={46} glow={false} /> : (
+              <Text style={styles.pct}>{percent}%</Text>
+            )}
           </View>
         </View>
         <View style={styles.info}>
@@ -78,7 +85,6 @@ const styles = StyleSheet.create({
     borderRadius: radii.lg,
     padding: spacing.xl,
     marginBottom: spacing.lg,
-    ...shadows.card,
   },
   top: {
     flexDirection: 'row',

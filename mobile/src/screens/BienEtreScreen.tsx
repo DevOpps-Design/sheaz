@@ -4,10 +4,13 @@
  */
 import React from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import ScreenHeader from '../components/ScreenHeader';
+import IconBadge from '../components/IconBadge';
+import { habitIcon } from '../lib/icons';
 import { useHabits } from '../hooks/useData';
-import { colors, radii, spacing, typography } from '../theme';
+import { colors, radii, shadows, spacing, typography } from '../theme';
 
 export default function BienEtreScreen() {
   const { habits, logs, toggle, loading } = useHabits();
@@ -20,7 +23,7 @@ export default function BienEtreScreen() {
       <View style={styles.statRow}>
         <View style={styles.statCard}>
           <Text style={styles.statK}>Sommeil</Text>
-          <Text style={styles.statV}>7h30 <Text style={styles.statSmall}>⭐</Text></Text>
+          <Text style={styles.statV}>7h30 <MaterialCommunityIcons name="star" size={14} color={colors.gold} /></Text>
         </View>
         <View style={styles.statCard}>
           <Text style={styles.statK}>Hydratation</Text>
@@ -43,14 +46,16 @@ export default function BienEtreScreen() {
               activeOpacity={0.8}
               onPress={() => toggle(habit.id)}
             >
-              <View style={[styles.check, done && styles.checkDone]}>
-                {done ? <Text style={styles.checkText}>✓</Text> : null}
-              </View>
+              <IconBadge icon={habitIcon(habit.name, habit.emoji)} color={colors.blue} size={38} variant={done ? 'solid' : 'soft'} glow={done} />
               <View style={{ flex: 1 }}>
-                <Text style={styles.habitName}>{habit.emoji} {habit.name}</Text>
-                <Text style={styles.habitMeta}>{done ? 'Fait ✅' : `Rappel ${habit.reminder_time ?? '—'}`}</Text>
+                <Text style={styles.habitName}>{habit.name}</Text>
+                <Text style={styles.habitMeta}>{done ? 'Fait aujourd’hui' : `Rappel ${habit.reminder_time ?? '—'}`}</Text>
               </View>
-              <Text style={styles.habitTime}>{done ? '✓' : '○'}</Text>
+              <MaterialCommunityIcons
+                name={done ? 'check-circle' : 'circle-outline'}
+                size={24}
+                color={done ? colors.volt : colors.line}
+              />
             </TouchableOpacity>
           );
         })
@@ -70,6 +75,7 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     borderRadius: radii.md,
     padding: spacing.lg,
+    ...shadows.card,
   },
   statK: { ...typography.label, fontSize: 10.5, letterSpacing: 0.8, textTransform: 'uppercase', color: colors.muted },
   statV: { ...typography.display, fontSize: 21, color: colors.ink, marginTop: 4 },
@@ -92,21 +98,10 @@ const styles = StyleSheet.create({
     borderRadius: radii.lg,
     padding: spacing.lg,
     marginBottom: 11,
+    ...shadows.card,
   },
-  habitDone: { backgroundColor: colors.voltSoft, borderColor: '#CBE7A5' },
-  check: {
-    width: 27,
-    height: 27,
-    borderRadius: 9,
-    borderWidth: 2,
-    borderColor: '#D6DEEA',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkDone: { backgroundColor: colors.volt, borderColor: colors.volt },
-  checkText: { ...typography.display, fontSize: 14, color: colors.white },
+  habitDone: { backgroundColor: colors.voltSoft, borderColor: '#CBE7A5', ...shadows.lift(colors.volt) },
   habitName: { ...typography.label, fontSize: 15, color: colors.ink },
   habitMeta: { ...typography.body, fontSize: 12, color: colors.muted },
-  habitTime: { ...typography.label, fontSize: 12, color: colors.muted },
   empty: { ...typography.body, fontSize: 13, color: colors.muted },
 });

@@ -9,9 +9,11 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import PillarCard from '../components/PillarCard';
 import ScreenHeader from '../components/ScreenHeader';
+import IconBadge from '../components/IconBadge';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useDashboard } from '../hooks/useData';
 import { supabase } from '../lib/supabase';
-import { colors, radii, spacing, typography } from '../theme';
+import { colors, radii, shadows, spacing, typography } from '../theme';
 import type { RootStackParamList } from '../navigation/types';
 
 export default function DashboardScreen() {
@@ -35,7 +37,7 @@ export default function DashboardScreen() {
         <RefreshControl refreshing={dashboard.loading} onRefresh={dashboard.refresh} tintColor={colors.sport} />
       }
     >
-      <ScreenHeader title="Votre" accent="équilibre" subtitle={`Bonjour, ${name} 🌞`} avatar={name.slice(0, 1).toUpperCase()} />
+      <ScreenHeader title="Votre" accent="équilibre" subtitle={`Bonjour, ${name}`} avatar={name.slice(0, 1).toUpperCase()} />
 
       {dashboard.loading ? (
         <ActivityIndicator color={colors.sport} style={{ marginTop: 30 }} />
@@ -48,6 +50,7 @@ export default function DashboardScreen() {
             color={colors.sport}
             chip="Objectif hebdo"
             chipColor={colors.sport}
+            icon="dumbbell"
           />
           <PillarCard
             title="Corps"
@@ -56,6 +59,7 @@ export default function DashboardScreen() {
             color={colors.blue}
             chip="Aujourd'hui"
             chipColor={colors.blue}
+            icon="water"
           />
           <PillarCard
             title="Mental"
@@ -64,19 +68,22 @@ export default function DashboardScreen() {
             color={colors.purple}
             chip="Aujourd'hui"
             chipColor={colors.purple}
+            icon="meditation"
           />
         </>
       )}
 
       <Text style={styles.section}>À faire ce soir</Text>
       <TouchableOpacity style={styles.ghost} activeOpacity={0.8} onPress={() => navigation.navigate('Mental')}>
-        <Text style={styles.ghostText}>🧘 Méditation · 10 min</Text>
-        <Text style={styles.ghostArrow}>→</Text>
+        <IconBadge icon="meditation" color={colors.purple} size={40} />
+        <Text style={styles.ghostText}>Méditation · 10 min</Text>
+        <MaterialCommunityIcons name="chevron-right" size={22} color={colors.muted} />
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.rewardsLink} activeOpacity={0.8} onPress={() => navigation.navigate('Recompenses')}>
-        <Text style={styles.rewardsText}>🏆 Mes récompenses</Text>
-        <Text style={styles.ghostArrow}>→</Text>
+        <IconBadge icon="trophy-outline" color={colors.gold} size={40} />
+        <Text style={styles.rewardsText}>Mes récompenses</Text>
+        <MaterialCommunityIcons name="chevron-right" size={22} color={colors.muted} />
       </TouchableOpacity>
     </ScrollView>
   );
@@ -97,23 +104,26 @@ const styles = StyleSheet.create({
   ghost: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 14,
     backgroundColor: colors.white,
     borderWidth: 1.5,
     borderColor: colors.line,
     borderRadius: radii.lg,
     padding: spacing.lg,
+    ...shadows.lift(colors.purple),
   },
   ghostText: { ...typography.label, fontSize: 15, color: colors.ink, flex: 1 },
-  ghostArrow: { ...typography.display, fontSize: 16, color: colors.muted },
   rewardsLink: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.goldSoft,
+    gap: 14,
+    backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: '#F0DFB8',
     borderRadius: radii.lg,
     padding: spacing.lg,
     marginTop: spacing.md,
+    ...shadows.lift(colors.gold),
   },
   rewardsText: { ...typography.label, fontSize: 15, color: colors.ink, flex: 1 },
 });

@@ -5,9 +5,11 @@
  */
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import ScreenHeader from '../components/ScreenHeader';
-import { colors, radii, spacing, typography } from '../theme';
+import { colors, gradients, radii, shadows, spacing, typography } from '../theme';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type Plan = 'yearly' | 'monthly';
 
@@ -19,7 +21,11 @@ export default function PremiumScreen() {
       <ScreenHeader title="Premium" />
 
       <View style={styles.hero}>
-        <Text style={styles.crown}>👑</Text>
+        <View style={styles.crownWrap}>
+          <LinearGradient colors={gradients.reward} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.crownBg}>
+            <MaterialCommunityIcons name="crown" size={34} color={colors.white} />
+          </LinearGradient>
+        </View>
         <Text style={styles.heroTitle}>
           Sheaz <Text style={styles.heroAccent}>Premium</Text>
         </Text>
@@ -64,7 +70,7 @@ export default function PremiumScreen() {
         7 jours offerts · Sans engagement · Annulable en 2 taps
       </Text>
       <Text style={styles.legal}>
-        🔒 Paiement sécurisé · Conditions · Confidentialité
+        <MaterialCommunityIcons name="lock-outline" size={11} color={colors.muted} /> Paiement sécurisé · Conditions · Confidentialité
       </Text>
     </ScrollView>
   );
@@ -80,8 +86,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     alignItems: 'center',
     marginBottom: spacing.lg,
+    ...shadows.lift(colors.purple),
   },
-  crown: { fontSize: 42, marginBottom: 8 },
+  crownWrap: { marginBottom: 12 },
+  crownBg: {
+    width: 64,
+    height: 64,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadows.glow(colors.gold),
+  },
   heroTitle: { ...typography.display, fontSize: 24, color: colors.white },
   heroAccent: { ...typography.accent, color: colors.gold },
   heroSub: {

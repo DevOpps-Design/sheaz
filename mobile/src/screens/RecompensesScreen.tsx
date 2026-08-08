@@ -5,34 +5,38 @@
  */
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import ScreenHeader from '../components/ScreenHeader';
-import { colors, radii, spacing, typography } from '../theme';
+import IconBadge from '../components/IconBadge';
+import type { IconName } from '../components/IconBadge';
+import { colors, radii, shadows, spacing, typography } from '../theme';
 
 interface Badge {
-  emoji: string;
+  icon: IconName;
+  color: string;
   name: string;
   meta: string;
   unlocked: boolean;
 }
 
 const BADGES: Badge[] = [
-  { emoji: '🌅', name: 'Lève-tôt', meta: '3 séances avant 8h', unlocked: true },
-  { emoji: '💪', name: 'Série de force', meta: '2 semaines de sport', unlocked: true },
-  { emoji: '🧘', name: 'Zen matinal', meta: '7 méditations', unlocked: true },
-  { emoji: '🏃', name: 'Marathonien', meta: 'Courir 42 km cumulés', unlocked: false },
-  { emoji: '🌟', name: 'Équilibre parfait', meta: '3 piliers à 100%', unlocked: false },
+  { icon: 'weather-sunset-up', color: colors.gold, name: 'Lève-tôt', meta: '3 séances avant 8h', unlocked: true },
+  { icon: 'arm-flex', color: colors.sport, name: 'Série de force', meta: '2 semaines de sport', unlocked: true },
+  { icon: 'meditation', color: colors.purple, name: 'Zen matinal', meta: '7 méditations', unlocked: true },
+  { icon: 'run', color: colors.blue, name: 'Marathonien', meta: 'Courir 42 km cumulés', unlocked: false },
+  { icon: 'star', color: colors.gold, name: 'Équilibre parfait', meta: '3 piliers à 100%', unlocked: false },
 ];
 
 export default function RecompensesScreen() {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <ScreenHeader title="Récompenses" subtitle="Vos victoires, célébrées 🏆" />
+      <ScreenHeader title="Récompenses" subtitle="Vos victoires, célébrées" />
 
       <View style={styles.streakCard}>
         <View style={styles.streakNum}>
           <Text style={styles.streakValue}>12</Text>
-          <Text style={styles.streakLabel}>🔥 Streak</Text>
+          <Text style={styles.streakLabel}><MaterialCommunityIcons name="fire" size={11} color={colors.sport} /> Streak</Text>
         </View>
         <View style={styles.streakBar}>
           <View style={[styles.streakFill, { width: '80%' }]} />
@@ -43,16 +47,16 @@ export default function RecompensesScreen() {
       <Text style={styles.section}>Badges</Text>
       {BADGES.map((badge) => (
         <View key={badge.name} style={[styles.badge, !badge.unlocked && styles.badgeLocked]}>
-          <View style={[styles.badgeIcon, !badge.unlocked && styles.badgeIconLocked]}>
-            <Text style={styles.badgeEmoji}>{badge.emoji}</Text>
-          </View>
+          <IconBadge icon={badge.icon} color={badge.color} size={44} variant={badge.unlocked ? 'solid' : 'soft'} glow={badge.unlocked} />
           <View style={{ flex: 1 }}>
             <Text style={styles.badgeName}>{badge.name}</Text>
             <Text style={styles.badgeMeta}>{badge.meta}</Text>
           </View>
-          <Text style={[styles.badgeState, !badge.unlocked && styles.badgeStateLocked]}>
-            {badge.unlocked ? '✓' : '🔒'}
-          </Text>
+          <MaterialCommunityIcons
+            name={badge.unlocked ? 'check-circle' : 'lock'}
+            size={22}
+            color={badge.unlocked ? colors.volt : colors.muted}
+          />
         </View>
       ))}
     </ScrollView>
@@ -71,10 +75,11 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     borderRadius: radii.lg,
     padding: spacing.xl,
+    ...shadows.card,
   },
   streakNum: { alignItems: 'center' },
   streakValue: { ...typography.display, fontSize: 34, color: colors.sport },
-  streakLabel: { ...typography.caption, fontSize: 11, color: colors.muted },
+  streakLabel: { ...typography.caption, fontSize: 11, color: colors.muted, flexDirection: 'row', alignItems: 'center', gap: 3 },
   streakBar: {
     flex: 1,
     height: 10,
@@ -107,20 +112,9 @@ const styles = StyleSheet.create({
     borderRadius: radii.md,
     padding: spacing.lg,
     marginBottom: 11,
+    ...shadows.card,
   },
   badgeLocked: { opacity: 0.55 },
-  badgeIcon: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: colors.goldSoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  badgeIconLocked: { backgroundColor: colors.paper },
-  badgeEmoji: { fontSize: 22 },
   badgeName: { ...typography.label, fontSize: 14, color: colors.ink },
   badgeMeta: { ...typography.body, fontSize: 12, color: colors.muted },
-  badgeState: { ...typography.label, fontSize: 14, color: colors.gold },
-  badgeStateLocked: { color: colors.muted },
 });

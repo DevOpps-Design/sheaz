@@ -15,13 +15,15 @@ import {
 } from 'react-native';
 
 import { seedDefaults } from '../lib/seed';
-import { colors, radii, spacing, typography } from '../theme';
+import IconBadge from '../components/IconBadge';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { colors, radii, shadows, spacing, typography } from '../theme';
 
 const PILLARS = [
-  { id: 1, emoji: '🏋️', name: 'Sport', desc: 'Séances, cardio, force', color: colors.sport },
-  { id: 2, emoji: '💧', name: 'Corps', desc: 'Sommeil, eau, habitudes', color: colors.blue },
-  { id: 3, emoji: '🧠', name: 'Mental', desc: 'Méditation, humeur', color: colors.purple },
-];
+  { id: 1, icon: 'dumbbell', name: 'Sport', desc: 'Séances, cardio, force', color: colors.sport },
+  { id: 2, icon: 'water', name: 'Corps', desc: 'Sommeil, eau, habitudes', color: colors.blue },
+  { id: 3, icon: 'brain', name: 'Mental', desc: 'Méditation, humeur', color: colors.purple },
+] as const;
 
 export default function OnboardingScreen({ onDone }: { onDone: () => void }) {
   const [step, setStep] = useState<1 | 2>(1);
@@ -71,17 +73,26 @@ export default function OnboardingScreen({ onDone }: { onDone: () => void }) {
           {PILLARS.map((p) => (
             <TouchableOpacity
               key={p.id}
-              style={[styles.pillar, pillars.includes(p.id) && { borderColor: p.color, backgroundColor: `${p.color}14` }]}
+              style={[
+                styles.pillar,
+                pillars.includes(p.id) && {
+                  borderColor: p.color,
+                  backgroundColor: `${p.color}14`,
+                  ...shadows.lift(p.color),
+                },
+              ]}
               activeOpacity={0.8}
               onPress={() => togglePillar(p.id)}
             >
-              <Text style={styles.pillarEmoji}>{p.emoji}</Text>
+              <IconBadge icon={p.icon} color={p.color} size={46} />
               <View style={{ flex: 1 }}>
                 <Text style={styles.pillarName}>{p.name}</Text>
                 <Text style={styles.pillarDesc}>{p.desc}</Text>
               </View>
               <View style={[styles.check, pillars.includes(p.id) && { backgroundColor: p.color, borderColor: p.color }]}>
-                {pillars.includes(p.id) ? <Text style={styles.checkText}>✓</Text> : null}
+                {pillars.includes(p.id) ? (
+                  <MaterialCommunityIcons name="check" size={16} color={colors.white} />
+                ) : null}
               </View>
             </TouchableOpacity>
           ))}
@@ -193,7 +204,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  checkText: { ...typography.display, fontSize: 14, color: colors.white },
   error: { ...typography.body, fontSize: 12, color: colors.sport, marginTop: 8 },
   card: {
     backgroundColor: colors.white,

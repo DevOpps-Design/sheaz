@@ -4,12 +4,21 @@
  */
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import type { IconName } from '../components/IconBadge';
 
 import ScreenHeader from '../components/ScreenHeader';
 import { useMood } from '../hooks/useData';
-import { colors, radii, spacing, typography } from '../theme';
+import { colors, radii, shadows, spacing, typography } from '../theme';
 
-const MOODS = ['😣', '😕', '😐', '🙂', '😌', '🤩'];
+const MOODS: { icon: IconName; color: string }[] = [
+  { icon: 'emoticon-sad-outline', color: colors.sport },
+  { icon: 'emoticon-neutral-outline', color: colors.sport },
+  { icon: 'emoticon-neutral', color: colors.gold },
+  { icon: 'emoticon-happy-outline', color: colors.volt },
+  { icon: 'emoticon-happy', color: colors.volt },
+  { icon: 'emoticon-excited', color: colors.blue },
+];
 
 export default function MentalScreen() {
   const { mood, setMood } = useMood();
@@ -19,19 +28,25 @@ export default function MentalScreen() {
       <ScreenHeader title="Mental" subtitle="Comment vous sentez-vous ?" />
 
       <View style={styles.moodCard}>
-        {MOODS.map((emoji, index) => (
-          <TouchableOpacity key={emoji} style={[styles.mood, mood === index && styles.moodSel]} onPress={() => setMood(index)}>
-            <Text style={[styles.moodEmoji, mood === index && styles.moodEmojiSel]}>{emoji}</Text>
+        {MOODS.map((m, index) => (
+          <TouchableOpacity key={m.icon} style={[styles.mood, mood === index && { ...styles.moodSel, ...shadows.glow(m.color) }]} onPress={() => setMood(index)}>
+            <MaterialCommunityIcons
+              name={m.icon}
+              size={mood === index ? 34 : 30}
+              color={mood === index ? m.color : colors.muted}
+            />
           </TouchableOpacity>
         ))}
       </View>
-      {mood !== null ? <Text style={styles.saved}>Humeur notée ✅</Text> : null}
+      {mood !== null ? (
+        <Text style={styles.saved}><MaterialCommunityIcons name="check-circle" size={14} color={colors.volt} /> Humeur notée</Text>
+      ) : null}
 
       <Text style={styles.section}>Méditations guidées</Text>
       {meditations.map((med) => (
         <TouchableOpacity key={med.name} style={styles.med} activeOpacity={0.8}>
           <View style={styles.play}>
-            <Text style={styles.playText}>▶</Text>
+            <MaterialCommunityIcons name="play" size={22} color={colors.white} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.medName}>{med.name}</Text>
@@ -43,8 +58,14 @@ export default function MentalScreen() {
 
       <Text style={styles.section}>Routine du soir</Text>
       <View style={styles.routineCard}>
-        <Text style={styles.routineText}>🌙 Journal d'humeur · 21h30</Text>
-        <Text style={styles.routineText}>📵 Écrans off · 22h00</Text>
+        <View style={styles.routineRow}>
+          <MaterialCommunityIcons name="weather-night" size={18} color={colors.purple} />
+          <Text style={styles.routineText}>Journal d'humeur · 21h30</Text>
+        </View>
+        <View style={styles.routineRow}>
+          <MaterialCommunityIcons name="cellphone-off" size={18} color={colors.purple} />
+          <Text style={styles.routineText}>Écrans off · 22h00</Text>
+        </View>
       </View>
     </ScrollView>
   );
@@ -67,12 +88,21 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     borderRadius: radii.lg,
     padding: spacing.lg,
+    ...shadows.card,
   },
-  mood: { padding: 6, borderRadius: radii.md },
-  moodSel: { backgroundColor: colors.sportSoft, transform: [{ scale: 1.15 }] },
-  moodEmoji: { fontSize: 32 },
-  moodEmojiSel: { fontSize: 34 },
-  saved: { ...typography.label, fontSize: 12, color: colors.volt, textAlign: 'center', marginTop: 10 },
+  mood: { padding: 7, borderRadius: radii.md },
+  moodSel: { backgroundColor: colors.paper, transform: [{ scale: 1.12 }] },
+  saved: {
+    ...typography.label,
+    fontSize: 12,
+    color: colors.volt,
+    textAlign: 'center',
+    marginTop: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+  },
   section: {
     ...typography.label,
     fontSize: 12,
@@ -92,6 +122,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.lg,
     padding: spacing.lg,
     marginBottom: 12,
+    ...shadows.card,
   },
   play: {
     width: 48,
@@ -100,8 +131,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.purple,
     alignItems: 'center',
     justifyContent: 'center',
+    ...shadows.glow(colors.purple),
   },
-  playText: { ...typography.display, fontSize: 17, color: colors.white },
   medName: { ...typography.label, fontSize: 15, color: colors.ink },
   medMeta: { ...typography.body, fontSize: 12, color: colors.muted },
   medDur: { ...typography.label, fontSize: 12, color: colors.muted },
@@ -113,5 +144,6 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     gap: spacing.sm,
   },
+  routineRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   routineText: { ...typography.label, fontSize: 14, color: colors.ink },
 });

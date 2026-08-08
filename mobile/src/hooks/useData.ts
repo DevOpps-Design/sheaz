@@ -255,7 +255,7 @@ export function useDashboard(): DashboardData {
       },
       mental: {
         percent: mentalPercent,
-        label: mood?.length ? 'Humeur notée ✅' : 'Humeur à noter',
+        label: mood?.length ? 'Humeur notée' : 'Humeur à noter',
       },
     });
     setLoading(false);

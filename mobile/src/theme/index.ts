@@ -3,6 +3,7 @@
  * Validé par Le Credo le 2026-08-08.
  * Source: 05-charte-graphique.md
  */
+import type { ViewStyle } from 'react-native';
 
 export const colors = {
   // Base
@@ -95,19 +96,23 @@ export const typography = {
 
 export const shadows = {
   card: {
-    shadowColor: colors.ink,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 14,
+    boxShadow: '0 4px 14px rgba(14, 27, 44, 0.06), 0 1px 3px rgba(14, 27, 44, 0.04)',
     elevation: 2,
   },
   cta: {
-    shadowColor: colors.sport,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.38,
-    shadowRadius: 24,
+    boxShadow: '0 10px 24px rgba(255, 90, 31, 0.38), 0 2px 6px rgba(255, 90, 31, 0.22)',
     elevation: 6,
   },
+  /** Relief 3D : ombre portée colorée par pilier (effet « carte qui flotte ») */
+  lift: (color: string): ViewStyle => ({
+    boxShadow: `0 12px 28px ${color}33, 0 4px 10px ${color}1f`,
+    elevation: 5,
+  }),
+  /** Halo coloré (badges, icônes actives) */
+  glow: (color: string): ViewStyle => ({
+    boxShadow: `0 0 18px ${color}55`,
+    elevation: 4,
+  }),
 } as const;
 
 export const theme = { colors, gradients, radii, spacing, typography, shadows };
