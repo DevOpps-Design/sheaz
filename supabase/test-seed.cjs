@@ -30,6 +30,13 @@ async function main() {
   });
   console.log('profil:', pe ? '❌ ' + pe.message : '✅');
 
+  // Nettoyage avant re-seed (le script est réutilisable sur le même compte)
+  await sb.from('goals').delete().eq('user_id', uid);
+  await sb.from('habits').delete().eq('user_id', uid);
+  await sb.from('sleep_entries').delete().eq('user_id', uid);
+  await sb.from('hydration_entries').delete().eq('user_id', uid);
+  await sb.from('body_metrics').delete().eq('user_id', uid);
+
   // 2. Objectifs (avec user_id — le fix S7)
   const goals = [
     { user_id: uid, pillar: 1, title: 'Séances de sport', target: 3, unit: 'séances', period: 'week' },
@@ -55,6 +62,32 @@ async function main() {
   const { data: g, error: g2 } = await sb.from('goals').select('id,pillar,title').eq('user_id', uid);
   const { data: h, error: h2 } = await sb.from('habits').select('id,name').eq('user_id', uid);
   console.log('lecture goals:', g2 ? '❌' : `✅ ${g.length}`, '| habits:', h2 ? '❌' : `✅ ${h.length}`);
+
+  // 5. S8 — Corps : sommeil, hydratation, poids (inserts + lectures RLS)
+  const today = new Date().toISOString().slice(0, 10);
+  const { error: se } = await sb.from('sleep_entries').upsert(
+    { user_id: uid, sleep_date: today, duration_min: 450, quality: 4 },
+    { onConflict: 'user_id,sleep_date' },
+  );
+  const { error: we } = await sb.from('hydration_entries').upsert(
+    { user_id: uid, entry_date: today, glasses: 5 },
+    { onConflict: 'user_id,entry_date' },
+  );
+  const { error: me } = await sb.from('body_metrics').insert({
+    user_id: uid, metric_type: 'weight', value: 72.5, unit: 'kg', measured_on: today,
+  });
+  console.log('S8 corps — sommeil:', se ? '❌ ' + se.message : '✅ 7h30 · qualité 4');
+  console.log('S8 corps — hydratation:', we ? '❌ ' + we.message : '✅ 5 verres');
+  console.log('S8 corps — poids:', me ? '❌ ' + me.message : '✅ 72,5 kg');
+
+  const { data: sleep, error: se2 } = await sb.from('sleep_entries').select('duration_min,quality').eq('user_id', uid);
+  const { data: hydra, error: we2 } = await sb.from('hydration_entries').select('glasses').eq('user_id', uid);
+  const { data: weights, error: me2 } = await sb.from('body_metrics').select('value,unit').eq('user_id', uid);
+  console.log(
+    'lecture S8 — sommeil:', se2 ? '❌' : `✅ ${sleep.length}`,
+    '| hydratation:', we2 ? '❌' : `✅ ${hydra.length}`,
+    '| poids:', me2 ? '❌' : `✅ ${weights.length}`,
+  );
 }
 
 main().catch((e) => {

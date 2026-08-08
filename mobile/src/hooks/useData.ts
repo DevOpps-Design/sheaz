@@ -217,6 +217,15 @@ export function useDashboard(): DashboardData {
       .eq('user_id', user.id)
       .gte('logged_at', today);
 
+    // Hydratation du jour (S8 : intégrée au pilier Corps)
+    const { data: hydration } = await supabase
+      .from('hydration_entries')
+      .select('glasses')
+      .eq('user_id', user.id)
+      .eq('entry_date', today)
+      .maybeSingle();
+    const glasses = hydration?.glasses ?? 0;
+
     const habitFor = (pillar: number) =>
       (habits ?? []).filter((h) => h.pillar === pillar);
 
@@ -233,10 +242,12 @@ export function useDashboard(): DashboardData {
     const sportCount = (weekSessions ?? []).length;
     const sportPercent = sportGoal?.target ? Math.min(100, Math.round((sportCount / sportGoal.target) * 100)) : sportCount > 0 ? 50 : 0;
 
-    // Corps : habitudes du jour
+    // Corps : habitudes du jour + hydratation (8 verres = objectif)
     const corpsHabits = habitFor(2);
     const corpsDone = corpsHabits.filter((h) => doneToday.has(h.id)).length;
-    const corpsPercent = corpsHabits.length ? Math.round((corpsDone / corpsHabits.length) * 100) : 0;
+    const waterScore = glasses >= 8 ? 1 : glasses >= 4 ? 0.5 : 0;
+    const corpsTotal = corpsHabits.length + 1;
+    const corpsPercent = Math.round(((corpsDone + waterScore) / corpsTotal) * 100);
 
     // Mental : méditations + humeur
     const mentalHabits = habitFor(3);
@@ -251,7 +262,7 @@ export function useDashboard(): DashboardData {
       },
       corps: {
         percent: corpsPercent,
-        label: `${corpsDone}/${corpsHabits.length} habitudes aujourd’hui`,
+        label: `${corpsDone}/${corpsHabits.length} habitudes · ${glasses}/8 verres`,
       },
       mental: {
         percent: mentalPercent,
