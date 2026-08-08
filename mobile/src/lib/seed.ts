@@ -31,33 +31,33 @@ export async function seedDefaults(choice: OnboardingChoice) {
   if (profileErr) throw profileErr;
 
   // Objectifs par défaut par pilier actif
-  const goals: { pillar: number; title: string; target: number; unit: string; period: string }[] = [];
+  const goals: { user_id: string; pillar: number; title: string; target: number; unit: string; period: string }[] = [];
   if (choice.pillars.includes(1)) {
-    goals.push({ pillar: 1, title: 'Séances de sport', target: 3, unit: 'séances', period: 'week' });
+    goals.push({ user_id: user.id, pillar: 1, title: 'Séances de sport', target: 3, unit: 'séances', period: 'week' });
   }
   if (choice.pillars.includes(2)) {
-    goals.push({ pillar: 2, title: 'Verres d’eau', target: 8, unit: 'verres', period: 'day' });
-    goals.push({ pillar: 2, title: 'Sommeil', target: 8, unit: 'heures', period: 'day' });
+    goals.push({ user_id: user.id, pillar: 2, title: 'Verres d’eau', target: 8, unit: 'verres', period: 'day' });
+    goals.push({ user_id: user.id, pillar: 2, title: 'Sommeil', target: 8, unit: 'heures', period: 'day' });
   }
   if (choice.pillars.includes(3)) {
-    goals.push({ pillar: 3, title: 'Méditations', target: 7, unit: 'séances', period: 'week' });
+    goals.push({ user_id: user.id, pillar: 3, title: 'Méditations', target: 7, unit: 'séances', period: 'week' });
   }
 
   const { error: goalsErr } = await supabase.from('goals').insert(goals);
   if (goalsErr) throw goalsErr;
 
   // Habitudes par défaut
-  const habits: { name: string; emoji: string; pillar: number; reminder_time: string }[] = [];
+  const habits: { user_id: string; name: string; emoji: string; pillar: number; reminder_time: string }[] = [];
   if (choice.pillars.includes(1)) {
-    habits.push({ name: 'Bouger 30 min', emoji: '🏃', pillar: 1, reminder_time: '18:00' });
+    habits.push({ user_id: user.id, name: 'Bouger 30 min', emoji: '🏃', pillar: 1, reminder_time: '18:00' });
   }
   if (choice.pillars.includes(2)) {
-    habits.push({ name: 'Boire un verre d’eau', emoji: '💧', pillar: 2, reminder_time: '09:00' });
-    habits.push({ name: 'Manger équilibré', emoji: '🥗', pillar: 2, reminder_time: '12:30' });
+    habits.push({ user_id: user.id, name: 'Boire un verre d’eau', emoji: '💧', pillar: 2, reminder_time: '09:00' });
+    habits.push({ user_id: user.id, name: 'Manger équilibré', emoji: '🥗', pillar: 2, reminder_time: '12:30' });
   }
   if (choice.pillars.includes(3)) {
-    habits.push({ name: 'Méditer 5 min', emoji: '🧘', pillar: 3, reminder_time: '20:00' });
-    habits.push({ name: 'Journal d’humeur', emoji: '📝', pillar: 3, reminder_time: '21:30' });
+    habits.push({ user_id: user.id, name: 'Méditer 5 min', emoji: '🧘', pillar: 3, reminder_time: '20:00' });
+    habits.push({ user_id: user.id, name: 'Journal d’humeur', emoji: '📝', pillar: 3, reminder_time: '21:30' });
   }
 
   const { error: habitsErr } = await supabase.from('habits').insert(habits);
