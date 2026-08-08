@@ -12,6 +12,7 @@ import ScreenHeader from '../components/ScreenHeader';
 import IconBadge from '../components/IconBadge';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useDashboard } from '../hooks/useData';
+import { useSubscription } from '../hooks/useSubscription';
 import { supabase } from '../lib/supabase';
 import { colors, radii, shadows, spacing, typography } from '../theme';
 import type { RootStackParamList } from '../navigation/types';
@@ -19,6 +20,7 @@ import type { RootStackParamList } from '../navigation/types';
 export default function DashboardScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const dashboard = useDashboard();
+  const { isPremium } = useSubscription();
   const [name, setName] = useState('');
 
   useEffect(() => {
@@ -74,6 +76,32 @@ export default function DashboardScreen() {
       )}
 
       <Text style={styles.section}>À faire ce soir</Text>
+
+      {/* Bandeau Premium (gating S10) */}
+      <TouchableOpacity
+        style={[styles.premiumBanner, isPremium && styles.premiumBannerOn]}
+        activeOpacity={0.85}
+        onPress={() => navigation.navigate('Premium')}
+      >
+        <View style={styles.premiumCrown}>
+          <MaterialCommunityIcons name="crown" size={18} color={colors.white} />
+        </View>
+        {isPremium ? (
+          <>
+            <Text style={styles.premiumText}>Premium actif — merci 🙌</Text>
+            <MaterialCommunityIcons name="chevron-right" size={20} color={colors.gold} />
+          </>
+        ) : (
+          <>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.premiumText}>Passez Premium</Text>
+              <Text style={styles.premiumSub}>Insights avancés · méditations complètes</Text>
+            </View>
+            <MaterialCommunityIcons name="chevron-right" size={20} color={colors.gold} />
+          </>
+        )}
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.ghost} activeOpacity={0.8} onPress={() => navigation.navigate('Mental')}>
         <IconBadge icon="meditation" color={colors.purple} size={40} />
         <Text style={styles.ghostText}>Méditation · 10 min</Text>
@@ -113,6 +141,28 @@ const styles = StyleSheet.create({
     ...shadows.lift(colors.purple),
   },
   ghostText: { ...typography.label, fontSize: 15, color: colors.ink, flex: 1 },
+  premiumBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 13,
+    backgroundColor: colors.ink,
+    borderRadius: radii.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
+    ...shadows.lift(colors.gold),
+  },
+  premiumBannerOn: { borderWidth: 1, borderColor: colors.gold },
+  premiumCrown: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: colors.sport,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadows.glow(colors.sport),
+  },
+  premiumText: { ...typography.label, fontSize: 15, color: colors.white, flex: 1 },
+  premiumSub: { ...typography.body, fontSize: 11, color: 'rgba(255,255,255,0.6)' },
   rewardsLink: {
     flexDirection: 'row',
     alignItems: 'center',

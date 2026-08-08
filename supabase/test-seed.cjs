@@ -37,6 +37,7 @@ async function main() {
   await sb.from('hydration_entries').delete().eq('user_id', uid);
   await sb.from('body_metrics').delete().eq('user_id', uid);
   await sb.from('meditation_sessions').delete().eq('user_id', uid);
+  await sb.from('subscriptions').delete().eq('user_id', uid);
 
   // 2. Objectifs (avec user_id — le fix S7)
   const goals = [
@@ -96,6 +97,14 @@ async function main() {
   });
   const { data: meds, error: md2 } = await sb.from('meditation_sessions').select('title,duration_sec').eq('user_id', uid);
   console.log('S9 mental — méditation:', mde ? '❌ ' + mde.message : '✅ 5 min enregistrée', '| lecture:', md2 ? '❌' : `✅ ${meds.length}`);
+
+  // 7. S10 — Freemium : entitlement (upsert + lecture RLS)
+  const { error: se10 } = await sb.from('subscriptions').upsert(
+    { user_id: uid, plan: 'monthly', source: 'simulated', status: 'active', auto_renew: true },
+    { onConflict: 'user_id,source' },
+  );
+  const { data: subs, error: s2 } = await sb.from('subscriptions').select('plan,status,source').eq('user_id', uid);
+  console.log('S10 freemium — entitlement:', se10 ? '❌ ' + se10.message : '✅ monthly active', '| lecture:', s2 ? '❌' : `✅ ${subs.length}`);
 }
 
 main().catch((e) => {
