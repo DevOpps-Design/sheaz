@@ -31,11 +31,29 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      if (session?.user) await checkOnboarding(session.user.id);
-      setBooted(true);
-    });
+    let mounted = true;
+    (async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
+        if (mounted) setBooted(true);
+        return;
+      }
+      // Valide le token côté serveur ; si la session est morte (403/expirée),
+      // on déconnecte proprement au lieu de laisser l'utilisateur bloqué.
+      const { error } = await supabase.auth.getUser();
+      if (mounted) {
+        if (error) {
+          await supabase.auth.signOut();
+          setSession(null);
+        } else {
+          setSession(session);
+          await checkOnboarding(session.user.id);
+        }
+        setBooted(true);
+      }
+    })();
 
     const {
       data: { subscription },
@@ -44,7 +62,10 @@ export default function App() {
       if (session?.user) await checkOnboarding(session.user.id);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [checkOnboarding]);
 
   if (!booted) {

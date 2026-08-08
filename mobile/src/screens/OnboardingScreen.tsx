@@ -46,7 +46,13 @@ export default function OnboardingScreen({ onDone }: { onDone: () => void }) {
       await seedDefaults({ pillars, consentHealth, consentAnalytics, dailyTime });
       onDone();
     } catch (e) {
-      setError('Une erreur est survenue. Réessayez.');
+      const msg =
+        e instanceof Error
+          ? e.message.includes('Session')
+            ? e.message
+            : 'Une erreur est survenue. Réessayez.'
+          : 'Une erreur est survenue. Réessayez.';
+      setError(msg);
       setLoading(false);
     }
   };

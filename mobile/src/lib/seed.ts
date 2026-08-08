@@ -13,10 +13,12 @@ export interface OnboardingChoice {
 
 /** Applique le profil + crée les données par défaut */
 export async function seedDefaults(choice: OnboardingChoice) {
+  // Session locale (pas d'appel réseau) : le token est déjà validé au boot de l'app
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error('Non connecté');
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user;
+  if (!user) throw new Error('Session expirée. Reconnectez-vous.');
 
   const { error: profileErr } = await supabase
     .from('profiles')
