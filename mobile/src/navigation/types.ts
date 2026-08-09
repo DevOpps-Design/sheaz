@@ -7,6 +7,8 @@ export type RootStackParamList = {
   Alimentation: undefined;
   Objectifs: undefined;
   Jouer: undefined;
+  Insights: undefined;
+  Data: undefined;
 };
 
 export type TabParamList = {

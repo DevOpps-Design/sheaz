@@ -18,6 +18,8 @@ import PremiumScreen from '../screens/PremiumScreen';
 import AlimentationScreen from '../screens/AlimentationScreen';
 import ObjectifsScreen from '../screens/ObjectifsScreen';
 import JouerScreen from '../screens/JouerScreen';
+import InsightsScreen from '../screens/InsightsScreen';
+import DataScreen from '../screens/DataScreen';
 import type { RootStackParamList, TabParamList } from './types';
 
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -74,6 +76,8 @@ export default function RootNavigator() {
         <Stack.Screen name="Alimentation" component={AlimentationScreen} />
         <Stack.Screen name="Objectifs" component={ObjectifsScreen} />
         <Stack.Screen name="Jouer" component={JouerScreen} />
+        <Stack.Screen name="Insights" component={InsightsScreen} />
+        <Stack.Screen name="Data" component={DataScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

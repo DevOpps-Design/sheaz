@@ -92,6 +92,11 @@ export default function DashboardScreen() {
           <Text style={styles.spaceTitle}>Jouer</Text>
           <Text style={styles.spaceSub}>Se divertir</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.spaceCard} activeOpacity={0.85} onPress={() => navigation.navigate('Insights')}>
+          <IconBadge icon="chart-line" color={colors.blue} size={38} />
+          <Text style={styles.spaceTitle}>Insights</Text>
+          <Text style={styles.spaceSub}>Comprendre</Text>
+        </TouchableOpacity>
       </View>
 
       <Text style={styles.section}>À faire ce soir</Text>
@@ -182,9 +187,10 @@ const styles = StyleSheet.create({
   },
   premiumText: { ...typography.label, fontSize: 15, color: colors.white, flex: 1 },
   premiumSub: { ...typography.body, fontSize: 11, color: 'rgba(255,255,255,0.6)' },
-  spacesRow: { flexDirection: 'row', gap: 10 },
+  spacesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   spaceCard: {
-    flex: 1,
+    flexGrow: 1,
+    flexBasis: '30%',
     backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.line,
