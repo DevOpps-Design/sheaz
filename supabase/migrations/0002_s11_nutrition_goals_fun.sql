@@ -1,8 +1,8 @@
 -- SHEAZ — S11 : Alimentation + Objectifs 2.0 + Fun/Gamification
--- Migration NON APPLIQUÉE (token Management API épuisé) — à appliquer dès
--- qu'un nouveau token / accès SQL Editor sera disponible.
--- L'app fonctionne déjà via la couche locale (AsyncStorage) : food_logs,
--- gamification (XP/niveau/streak) sont persistés localement en attendant.
+-- ✅ APPLIQUÉE le 2026-08-09 via Management API (token renouvelé).
+-- Les hooks client ont été basculés sur Supabase (useFood → food_logs,
+-- useGamification → profiles.xp/level/streak + quiz_results + challenge_claims).
+-- La couche locale AsyncStorage (lib/store.ts) reste pour données transitoires.
 
 -- ═══════════════ 1. Alimentation (S11A) ═══════════════
 

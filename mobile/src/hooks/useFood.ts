@@ -1,12 +1,13 @@
 /**
  * SHEAZ — Hook Alimentation (S11A)
- * Journal des repas persisté localement (AsyncStorage) en attendant la
- * migration 0002 (table food_logs). API identique pour la bascule Supabase.
+ * Journal des repas persisté dans Supabase (table food_logs, RLS propriétaire).
+ * API identique à la version locale (AsyncStorage) — bascule transparente pour les écrans.
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Food } from '../data/foods';
 import { healthScore } from '../data/foods';
-import { getJson, setJson, todayKey, uid } from '../lib/store';
+import { supabase } from '../lib/supabase';
+import { todayKey } from '../lib/store';
 
 export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 
@@ -33,50 +34,93 @@ export interface FoodLog {
   loggedAt: string;
 }
 
-const KEY = 'sheaz.food_logs.v1';
-
 export function useFood() {
   const [logs, setLogs] = useState<FoodLog[]>([]);
   const [ready, setReady] = useState(false);
 
-  useEffect(() => {
-    getJson<FoodLog[]>(KEY, []).then((l) => {
-      setLogs(l);
-      setReady(true);
-    });
+  const refresh = useCallback(async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data, error } = await supabase
+      .from('food_logs')
+      .select('*')
+      .order('logged_on', { ascending: false })
+      .limit(500);
+    if (error) return;
+    setLogs(
+      (data ?? []).map((r) => ({
+        id: r.id as string,
+        foodId: (r.food_id as string) ?? (r.food_name as string),
+        name: r.food_name as string,
+        meal: r.meal_type as MealType,
+        qty: 1,
+        kcal: Number(r.kcal ?? 0),
+        proteinG: Number(r.protein_g ?? 0),
+        carbsG: 0,
+        fatG: 0,
+        fiberG: Number(r.fiber_g ?? 0),
+        sugarG: Number(r.sugar_g ?? 0),
+        score: Number(r.score ?? 2),
+        loggedAt: (r.logged_on as string) ?? '',
+      })),
+    );
+    setReady(true);
   }, []);
 
-  const persist = useCallback((next: FoodLog[]) => {
-    setLogs(next);
-    setJson(KEY, next);
-  }, []);
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   const addLog = useCallback(
-    (food: Food, meal: MealType, qty = 1) => {
-      const log: FoodLog = {
-        id: uid(),
-        foodId: food.id,
-        name: food.name,
-        meal,
-        qty,
-        kcal: Math.round(food.kcal * qty),
-        proteinG: Math.round(food.proteinG * qty * 10) / 10,
-        carbsG: Math.round(food.carbsG * qty * 10) / 10,
-        fatG: Math.round(food.fatG * qty * 10) / 10,
-        fiberG: Math.round(food.fiberG * qty * 10) / 10,
-        sugarG: Math.round(food.sugarG * qty * 10) / 10,
-        score: healthScore(food),
-        loggedAt: new Date().toISOString(),
-      };
-      persist([...logs, log]);
+    async (food: Food, meal: MealType, qty = 1) => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data, error } = await supabase
+        .from('food_logs')
+        .insert({
+          user_id: user.id,
+          food_name: food.name,
+          meal_type: meal,
+          kcal: Math.round(food.kcal * qty),
+          protein_g: Math.round(food.proteinG * qty * 10) / 10,
+          fiber_g: Math.round(food.fiberG * qty * 10) / 10,
+          sugar_g: Math.round(food.sugarG * qty * 10) / 10,
+          score: healthScore(food),
+          logged_on: todayKey(),
+        })
+        .select()
+        .single();
+      if (error || !data) return;
+      setLogs((prev) => [
+        {
+          id: data.id as string,
+          foodId: food.id,
+          name: food.name,
+          meal,
+          qty,
+          kcal: Math.round(food.kcal * qty),
+          proteinG: Math.round(food.proteinG * qty * 10) / 10,
+          carbsG: Math.round(food.carbsG * qty * 10) / 10,
+          fatG: Math.round(food.fatG * qty * 10) / 10,
+          fiberG: Math.round(food.fiberG * qty * 10) / 10,
+          sugarG: Math.round(food.sugarG * qty * 10) / 10,
+          score: healthScore(food),
+          loggedAt: todayKey(),
+        },
+        ...prev,
+      ]);
     },
-    [logs, persist],
+    [],
   );
 
-  const removeLog = useCallback(
-    (id: string) => persist(logs.filter((l) => l.id !== id)),
-    [logs, persist],
-  );
+  const removeLog = useCallback(async (id: string) => {
+    await supabase.from('food_logs').delete().eq('id', id);
+    setLogs((prev) => prev.filter((l) => l.id !== id));
+  }, []);
 
   const todayLogs = useMemo(() => logs.filter((l) => l.loggedAt.slice(0, 10) === todayKey()), [logs]);
 

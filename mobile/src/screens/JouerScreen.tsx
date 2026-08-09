@@ -124,7 +124,7 @@ export default function JouerScreen() {
   const nextQuiz = () => {
     if (quizIdx + 1 >= quiz!.questions.length) {
       setQuizDone(true);
-      if (!gam.hasDoneQuiz(quizKey!)) gam.markQuizDone(quizKey!);
+      if (!gam.hasDoneQuiz(quizKey!)) gam.markQuizDone(quizKey!, quizScore, quiz!.questions.length);
     } else {
       setQuizIdx((i) => i + 1);
       setQuizPick(null);
