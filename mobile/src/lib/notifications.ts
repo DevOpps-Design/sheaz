@@ -2,22 +2,60 @@
  * SHEAZ — Notifications — implémentation NATIVE (iOS/Android)
  * Utilisée automatiquement par Metro sur natif (fichier .native.ts).
  * Rappels locaux programmés (habitudes + rappel quotidien) + SecureStore pour l'état.
+ *
+ * ⚠️ Expo Go (SDK 53+) : expo-notifications THROW au chargement sur Android
+ * (les push distantes ont été retirées d'Expo Go — voir warnOfExpoGoPushUsage).
+ * Le module s'auto-enregistre au `require()` (DevicePushTokenAutoRegistration.fx),
+ * donc on ne le charge JAMAIS dans Expo Go : toutes les fonctions passent en no-op.
+ * Les notifications locales fonctionneront sur les builds natifs (dev build EAS, stores).
  */
-import * as Notifications from 'expo-notifications';
+import { isRunningInExpoGo } from 'expo';
 import * as SecureStore from 'expo-secure-store';
+import type * as NotificationsNS from 'expo-notifications';
 
 const REMINDERS_KEY = 'sheaz.reminders.enabled';
+const RUNNING_IN_EXPO_GO = isRunningInExpoGo();
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
-});
+type NotificationsModule = typeof NotificationsNS;
+
+let notifCache: NotificationsModule | null = null;
+let handlerRegistered = false;
+
+/**
+ * Charge expo-notifications UNIQUEMENT hors Expo Go.
+ * Dans Expo Go, le require() déclenche un crash (push retirées) → null.
+ */
+function getNotifications(): NotificationsModule | null {
+  if (RUNNING_IN_EXPO_GO) return null;
+  if (notifCache) return notifCache;
+  try {
+    // Require dynamique : le side-effect d'auto-enregistrement push ne s'exécute
+    // que si le module est réellement chargé (jamais dans Expo Go).
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const mod = require('expo-notifications') as NotificationsModule & {
+      default?: NotificationsModule;
+    };
+    notifCache = mod.default ?? mod;
+    if (notifCache && typeof notifCache.setNotificationHandler === 'function' && !handlerRegistered) {
+      handlerRegistered = true;
+      notifCache.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowBanner: true,
+          shouldShowList: true,
+          shouldPlaySound: false,
+          shouldSetBadge: false,
+        }),
+      });
+    }
+  } catch {
+    notifCache = null; // module indisponible → mode dégradé silencieux
+  }
+  return notifCache;
+}
 
 export async function requestPermission(): Promise<boolean> {
+  const Notifications = getNotifications();
+  if (!Notifications) return false;
   try {
     const { status } = await Notifications.getPermissionsAsync();
     if (status === 'granted') return true;
@@ -34,6 +72,8 @@ export function isWebNotificationSupported(): boolean {
 
 /** Notif immédiate (test) */
 export async function sendTestNotification(): Promise<boolean> {
+  const Notifications = getNotifications();
+  if (!Notifications) return false;
   const ok = await requestPermission();
   if (!ok) return false;
   try {
@@ -52,6 +92,8 @@ export async function scheduleReminders(options: {
   dailyTime?: string | null;
   habitTimes?: (string | null)[];
 }): Promise<boolean> {
+  const Notifications = getNotifications();
+  if (!Notifications) return false;
   try {
     await Notifications.cancelAllScheduledNotificationsAsync();
 
@@ -80,6 +122,8 @@ export async function scheduleReminders(options: {
 }
 
 export async function cancelReminders(): Promise<void> {
+  const Notifications = getNotifications();
+  if (!Notifications) return;
   try {
     await Notifications.cancelAllScheduledNotificationsAsync();
   } catch {
