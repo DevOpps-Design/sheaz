@@ -10,10 +10,25 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import ScreenHeader from '../components/ScreenHeader';
 import { useSubscription } from '../hooks/useSubscription';
-import { purchase, restorePurchases, getProducts } from '../lib/iap';
 import { colors, gradients, radii, shadows, spacing, typography } from '../theme';
 
 type Plan = 'yearly' | 'monthly';
+
+/**
+ * Lazy-load de la couche IAP : react-native-iap est une lib NATIVE absente
+ * d'Expo Go — l'import statique ferait crasher l'app au démarrage sur Expo Go.
+ * Le module n'est chargé qu'au premier usage (achat / restauration / prix).
+ */
+let iapModule: typeof import('../lib/iap') | null = null;
+async function getIap(): Promise<typeof import('../lib/iap') | null> {
+  if (iapModule) return iapModule;
+  try {
+    iapModule = await import('../lib/iap');
+    return iapModule;
+  } catch {
+    return null; // Expo Go : achats indisponibles, on affiche un message propre
+  }
+}
 
 const BENEFITS: { icon: keyof typeof MaterialCommunityIcons.glyphMap; label: string }[] = [
   { icon: 'chart-line', label: 'Insights avancés (tendances, corrélations)' },
@@ -33,7 +48,9 @@ export default function PremiumScreen() {
   // Charger les prix réels (natif) / catalogue (web)
   React.useEffect(() => {
     (async () => {
-      const products = await getProducts();
+      const iap = await getIap();
+      if (!iap) return; // Expo Go : prix par défaut affichés
+      const products = await iap.getProducts();
       const map: Record<string, string> = {};
       products.forEach((p) => (map[p.id] = p.price));
       setPrices(map);
@@ -43,7 +60,13 @@ export default function PremiumScreen() {
   const buy = async (p: Plan) => {
     setBusy(true);
     setMsg(null);
-    const res = await purchase(p);
+    const iap = await getIap();
+    if (!iap) {
+      setMsg({ type: 'err', text: 'Les achats intégrés ne sont pas disponibles dans Expo Go — utilisez le build natif.' });
+      setBusy(false);
+      return;
+    }
+    const res = await iap.purchase(p);
     if (res.ok) {
       await setPlan(p);
       setMsg({ type: 'ok', text: res.message });
@@ -56,7 +79,13 @@ export default function PremiumScreen() {
   const restore = async () => {
     setBusy(true);
     setMsg(null);
-    const res = await restorePurchases();
+    const iap = await getIap();
+    if (!iap) {
+      setMsg({ type: 'err', text: 'Restauration indisponible dans Expo Go — utilisez le build natif.' });
+      setBusy(false);
+      return;
+    }
+    const res = await iap.restorePurchases();
     if (res.ok) {
       await setPlan(sub.plan === 'yearly' ? 'yearly' : 'monthly');
       setMsg({ type: 'ok', text: res.message });
