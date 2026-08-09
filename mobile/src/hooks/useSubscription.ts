@@ -36,10 +36,19 @@ export function useSubscription() {
     const { data } = await supabase
       .from('subscriptions')
       .select('id, plan, source, status, current_period_end, auto_renew')
-      .eq('user_id', user.id)
-      .eq('source', 'simulated')
-      .maybeSingle();
-    setSub(data ?? FREE);
+      .eq('user_id', user.id);
+    // Priorité : sources stores (appstore/playstore, vérifiées serveur) > simulated,
+    // puis expiration la plus éloignée. Seuls les abonnements actifs comptent.
+    const active = (data ?? []).filter((s) => s.status === 'active' && s.plan !== 'free');
+    if (active.length === 0) {
+      setSub(FREE);
+    } else {
+      const rank = (s: { source: string }) => (s.source === 'appstore' || s.source === 'playstore' ? 2 : 1);
+      const best = [...active].sort(
+        (a, b) => rank(b) - rank(a) || Date.parse(b.current_period_end ?? '0') - Date.parse(a.current_period_end ?? '0'),
+      )[0];
+      setSub(best as Subscription);
+    }
     setLoading(false);
   }, []);
 

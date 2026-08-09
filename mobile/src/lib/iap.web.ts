@@ -2,8 +2,8 @@
  * SHEAZ — Achats intégrés — implémentation WEB (navigateur)
  * Utilisée automatiquement par Metro sur web (fichier .web.ts).
  * MODE DÉMO : pas de vrai paiement sur le web — l'achat est simulé et
- * l'entitlement est écrit en base (source 'simulated'). La vérification de
- * reçu côté serveur (Edge Function + Apple/Google) arrive en S11.
+ * l'entitlement est écrit en base (source 'simulated'). Sur mobile, le reçu
+ * natif est vérifié côté serveur (Edge Function verify-receipt, S12).
  */
 import { supabase } from './supabase';
 import type { Plan } from '../hooks/useSubscription';
