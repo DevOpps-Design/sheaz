@@ -12,6 +12,7 @@ import IconBadge from '../components/IconBadge';
 import { FOODS, FOOD_CATEGORIES, SCORE_LABEL, mealAdvice, type Food, type FoodCategory } from '../data/foods';
 import { MEALS, useFood, type MealType } from '../hooks/useFood';
 import { colors, radii, shadows, spacing, typography } from '../theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const KCAL_TARGET = 2200;
 
@@ -25,6 +26,7 @@ function ScoreBadge({ score, size = 24 }: { score: number; size?: number }) {
 }
 
 export default function AlimentationScreen() {
+  const insets = useSafeAreaInsets();
   const { meals, totals, avgScore, mealCount, addLog, removeLog } = useFood();
   const [pickerMeal, setPickerMeal] = useState<MealType | null>(null);
   const [query, setQuery] = useState('');
@@ -47,7 +49,7 @@ export default function AlimentationScreen() {
   };
 
   return (
-    <View style={styles.screen}>
+    <View style={[styles.screen, { paddingTop: insets.top }]}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <ScreenHeader title="Votre" accent="assiette" subtitle="Ce que vous mangez, noté honnêtement" />
 

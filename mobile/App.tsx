@@ -5,6 +5,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { Session } from '@supabase/supabase-js';
 
 import TriadeLoader from './src/components/TriadeLoader';
@@ -19,6 +20,35 @@ export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [onboarded, setOnboarded] = useState<boolean | null>(null);
 
+  return (
+    <SafeAreaProvider>
+      <AppInner
+        booted={booted}
+        setBooted={setBooted}
+        session={session}
+        setSession={setSession}
+        onboarded={onboarded}
+        setOnboarded={setOnboarded}
+      />
+    </SafeAreaProvider>
+  );
+}
+
+function AppInner({
+  booted,
+  setBooted,
+  session,
+  setSession,
+  onboarded,
+  setOnboarded,
+}: {
+  booted: boolean;
+  setBooted: (b: boolean) => void;
+  session: Session | null;
+  setSession: (s: Session | null) => void;
+  onboarded: boolean | null;
+  setOnboarded: (b: boolean | null) => void;
+}) {
   const checkOnboarding = useCallback(async (userId: string) => {
     const { data } = await supabase
       .from('profiles')

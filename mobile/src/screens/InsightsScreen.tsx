@@ -14,6 +14,7 @@ import IconBadge, { type IconName } from '../components/IconBadge';
 import { useInsights } from '../hooks/useInsights';
 import type { RootStackParamList } from '../navigation/types';
 import { colors, gradients, radii, shadows, spacing, typography } from '../theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Insights'>;
 
@@ -107,6 +108,7 @@ function CorrCard({
 
 /* ------------------------------ Écran ------------------------------ */
 export default function InsightsScreen({ navigation }: Props) {
+  const insets = useSafeAreaInsets();
   const ins = useInsights();
 
   const corrSleepVerdict =
@@ -130,7 +132,7 @@ export default function InsightsScreen({ navigation }: Props) {
   const weightMax = Math.max(...weightBars.map((p) => p.value), 1);
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+    <ScrollView style={[styles.screen, { paddingTop: insets.top }]} contentContainerStyle={styles.content}>
       <ScreenHeader title="Vos" accent="insights" subtitle="Tendances & corrélations" />
 
       {/* Sélecteur 7 / 30 jours */}

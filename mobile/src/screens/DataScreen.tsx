@@ -11,6 +11,7 @@ import ScreenHeader from '../components/ScreenHeader';
 import IconBadge from '../components/IconBadge';
 import { supabase } from '../lib/supabase';
 import { colors, radii, shadows, spacing, typography } from '../theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /** Tables possédées par l'utilisateur (RLS propriétaire) — triées pour les FK */
 const USER_TABLES = [
@@ -31,6 +32,7 @@ const USER_TABLES = [
 ] as const;
 
 export default function DataScreen() {
+  const insets = useSafeAreaInsets();
   const [busy, setBusy] = useState<'export' | 'erase' | null>(null);
   const [confirmErase, setConfirmErase] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
@@ -112,7 +114,7 @@ export default function DataScreen() {
   };
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+    <ScrollView style={[styles.screen, { paddingTop: insets.top }]} contentContainerStyle={styles.content}>
       <ScreenHeader title="Vos" accent="données" subtitle="Export & effacement RGPD (art. 15-17)" />
 
       <View style={styles.hero}>

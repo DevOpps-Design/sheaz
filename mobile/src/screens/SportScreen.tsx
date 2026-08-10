@@ -10,15 +10,17 @@ import ScreenHeader from '../components/ScreenHeader';
 import IconBadge from '../components/IconBadge';
 import { useWorkoutSession } from '../hooks/useData';
 import { colors, radii, shadows, spacing, typography } from '../theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function SportScreen() {
+  const insets = useSafeAreaInsets();
   const { running, seconds, loading, start, stop } = useWorkoutSession();
 
   const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
   const ss = String(seconds % 60).padStart(2, '0');
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScrollView style={[styles.screen, { paddingTop: insets.top }]} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <ScreenHeader title="Sport" subtitle={running ? 'Séance en cours' : 'Prêt pour la séance ?'} />
 
       <View style={styles.session}>

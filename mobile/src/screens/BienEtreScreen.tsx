@@ -20,8 +20,10 @@ import { habitIcon } from '../lib/icons';
 import { useHabits } from '../hooks/useData';
 import { useHydration, useSleep, useWeight } from '../hooks/useBody';
 import { colors, radii, shadows, spacing, typography } from '../theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function BienEtreScreen() {
+  const insets = useSafeAreaInsets();
   const { habits, logs, toggle, loading } = useHabits();
   const corps = habits.filter((h) => h.pillar === 2);
 
@@ -43,7 +45,7 @@ export default function BienEtreScreen() {
   };
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScrollView style={[styles.screen, { paddingTop: insets.top }]} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <ScreenHeader title="Corps" subtitle="Prendre soin de son corps, en douceur" />
 
       {/* ---------------------------------- Sommeil ---------------------------------- */}

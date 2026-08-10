@@ -16,10 +16,12 @@ import { useSubscription } from '../hooks/useSubscription';
 import { supabase } from '../lib/supabase';
 import { colors, radii, shadows, spacing, typography } from '../theme';
 import { s } from '../lib/scale';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { RootStackParamList } from '../navigation/types';
 
 export default function DashboardScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const insets = useSafeAreaInsets();
   const dashboard = useDashboard();
   const { isPremium } = useSubscription();
   const [name, setName] = useState('');
@@ -33,7 +35,7 @@ export default function DashboardScreen() {
 
   return (
     <ScrollView
-      style={styles.screen}
+      style={[styles.screen, { paddingTop: insets.top }]}
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
       refreshControl={

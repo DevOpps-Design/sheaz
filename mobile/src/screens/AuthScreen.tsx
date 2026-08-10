@@ -18,10 +18,12 @@ import {
 import TriadeLoader from '../components/TriadeLoader';
 import { supabase } from '../lib/supabase';
 import { colors, radii, spacing, typography } from '../theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Mode = 'signin' | 'signup';
 
 export default function AuthScreen() {
+  const insets = useSafeAreaInsets();
   const [mode, setMode] = useState<Mode>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -45,7 +47,7 @@ export default function AuthScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.screen}
+      style={[styles.screen, { paddingTop: insets.top }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View style={styles.hero}>

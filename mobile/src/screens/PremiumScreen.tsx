@@ -11,6 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import ScreenHeader from '../components/ScreenHeader';
 import { useSubscription } from '../hooks/useSubscription';
 import { colors, gradients, radii, shadows, spacing, typography } from '../theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Plan = 'yearly' | 'monthly';
 
@@ -39,6 +40,7 @@ const BENEFITS: { icon: keyof typeof MaterialCommunityIcons.glyphMap; label: str
 ];
 
 export default function PremiumScreen() {
+  const insets = useSafeAreaInsets();
   const { sub, isPremium, loading, setPlan } = useSubscription();
   const [plan, setPlanState] = useState<Plan>('yearly');
   const [busy, setBusy] = useState(false);
@@ -104,7 +106,7 @@ export default function PremiumScreen() {
   }
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScrollView style={[styles.screen, { paddingTop: insets.top }]} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <ScreenHeader title="Premium" />
 
       {isPremium ? (

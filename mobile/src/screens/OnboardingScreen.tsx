@@ -18,6 +18,7 @@ import { seedDefaults } from '../lib/seed';
 import IconBadge from '../components/IconBadge';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, radii, shadows, spacing, typography } from '../theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const PILLARS = [
   { id: 1, icon: 'dumbbell', name: 'Sport', desc: 'Séances, cardio, force', color: colors.sport },
@@ -26,6 +27,7 @@ const PILLARS = [
 ] as const;
 
 export default function OnboardingScreen({ onDone }: { onDone: () => void }) {
+  const insets = useSafeAreaInsets();
   const [step, setStep] = useState<1 | 2>(1);
   const [pillars, setPillars] = useState<number[]>([1, 2, 3]);
   const [consentHealth, setConsentHealth] = useState(false);
@@ -60,7 +62,7 @@ export default function OnboardingScreen({ onDone }: { onDone: () => void }) {
   };
 
   return (
-    <View style={styles.screen}>
+    <View style={[styles.screen, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <Text style={styles.step}>Étape {step} / 2</Text>
         <Text style={styles.title}>

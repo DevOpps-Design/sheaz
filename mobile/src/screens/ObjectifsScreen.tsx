@@ -14,8 +14,10 @@ import { GOAL_PILLARS, GOAL_UNITS, useGoals2, type Goal } from '../hooks/useGoal
 import { useFood } from '../hooks/useFood';
 import { useHydration } from '../hooks/useBody';
 import { colors, radii, shadows, spacing, typography } from '../theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ObjectifsScreen() {
+  const insets = useSafeAreaInsets();
   const { goals, loading, createGoal, deleteGoal, progressOf } = useGoals2();
   const { mealCount } = useFood();
   const hydration = useHydration();
@@ -46,7 +48,7 @@ export default function ObjectifsScreen() {
   };
 
   return (
-    <View style={styles.screen}>
+    <View style={[styles.screen, { paddingTop: insets.top }]}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <ScreenHeader
           title="Mes"

@@ -16,6 +16,7 @@ import { useHydration } from '../hooks/useBody';
 import { useMeditations } from '../hooks/useMeditations';
 import { supabase } from '../lib/supabase';
 import { colors, gradients, radii, shadows, spacing, typography } from '../theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /* ------------------------------ Défis du jour ------------------------------ */
 interface DayCounters {
@@ -56,6 +57,7 @@ function buildBoard(): MemoCard[] {
 
 /* ------------------------------ Écran ------------------------------ */
 export default function JouerScreen() {
+  const insets = useSafeAreaInsets();
   const gam = useGamification();
   const food = useFood();
   const hydration = useHydration();
@@ -175,7 +177,7 @@ export default function JouerScreen() {
   };
 
   return (
-    <View style={styles.screen}>
+    <View style={[styles.screen, { paddingTop: insets.top }]}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <ScreenHeader title="Jouer," accent="progresser" subtitle="Chaque action compte" />
 

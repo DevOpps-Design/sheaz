@@ -11,6 +11,7 @@ import ScreenHeader from '../components/ScreenHeader';
 import IconBadge from '../components/IconBadge';
 import type { IconName } from '../components/IconBadge';
 import { colors, radii, shadows, spacing, typography } from '../theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface Badge {
   icon: IconName;
@@ -29,8 +30,9 @@ const BADGES: Badge[] = [
 ];
 
 export default function RecompensesScreen() {
+  const insets = useSafeAreaInsets();
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScrollView style={[styles.screen, { paddingTop: insets.top }]} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <ScreenHeader title="Récompenses" subtitle="Vos victoires, célébrées" />
 
       <View style={styles.streakCard}>

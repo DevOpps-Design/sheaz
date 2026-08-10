@@ -22,6 +22,7 @@ import {
   setRemindersEnabled,
 } from '../lib/notifications';
 import { colors, radii, shadows, spacing, typography } from '../theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const MOODS: { icon: IconName; color: string }[] = [
   { icon: 'emoticon-sad-outline', color: colors.sport },
@@ -39,6 +40,7 @@ const MEDITATIONS: { title: string; meta: string; dur: string; sec: number; grad
 ];
 
 export default function MentalScreen() {
+  const insets = useSafeAreaInsets();
   const { mood, setMood } = useMood();
   const med = useMeditations();
   const { habits } = useHabits();
@@ -94,7 +96,7 @@ export default function MentalScreen() {
   };
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScrollView style={[styles.screen, { paddingTop: insets.top }]} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <ScreenHeader title="Mental" subtitle="Comment vous sentez-vous ?" />
 
       {/* ---------------------------------- Humeur ---------------------------------- */}
