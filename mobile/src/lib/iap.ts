@@ -5,10 +5,17 @@
  * les produits doivent être déclarés dans App Store Connect / Play Console.
  * En Expo Go le module natif est absent → retombe en mode simulé (message clair).
  * Depuis S12 : le reçu est VÉRIFIÉ côté serveur (Edge Function verify-receipt).
+ *
+ * ⚠️ Expo Go : react-native-iap v16 dépend de react-native-nitro-modules
+ * (TurboModule natif ABSENT d'Expo Go) → le `require()` THROW au chargement.
+ * On ne charge donc JAMAIS le module dans Expo Go (guard isRunningInExpoGo
+ * + require dynamique try/catch) : toutes les fonctions passent en mode
+ * dégradé propre. Les achats réels fonctionneront sur les builds natifs.
  */
-import * as iap from 'react-native-iap';
-import type { ProductOrSubscription, Purchase } from 'react-native-iap';
+import { isRunningInExpoGo } from 'expo';
 import { Platform } from 'react-native';
+import type * as IapNS from 'react-native-iap';
+import type { ProductOrSubscription, Purchase } from 'react-native-iap';
 
 import { supabase } from './supabase';
 import type { Plan } from '../hooks/useSubscription';
@@ -18,9 +25,34 @@ export const PRODUCT_IDS = {
   monthly: 'sheaz.premium.monthly',
 } as const;
 
+type IapModule = typeof IapNS;
+
+const RUNNING_IN_EXPO_GO = isRunningInExpoGo();
+let iapCache: IapModule | null | undefined; // undefined = pas encore tenté
 let connected = false;
 
+/**
+ * Charge react-native-iap UNIQUEMENT hors Expo Go.
+ * Dans Expo Go, le require() déclenche un crash (TurboModule natif absent) → null.
+ */
+function getIap(): IapModule | null {
+  if (RUNNING_IN_EXPO_GO) return null;
+  if (iapCache !== undefined) return iapCache;
+  try {
+    // Require dynamique : le module (nitro-modules) ne s'exécute que s'il est
+    // réellement chargé — jamais dans Expo Go. En cas d'échec → mode dégradé.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const mod = require('react-native-iap') as IapModule & { default?: IapModule };
+    iapCache = mod.default ?? mod;
+  } catch {
+    iapCache = null; // module indisponible → achats désactivés proprement
+  }
+  return iapCache;
+}
+
 async function ensureConnected(): Promise<boolean> {
+  const iap = getIap();
+  if (!iap) return false;
   try {
     if (!connected) {
       await iap.initConnection();
@@ -38,7 +70,8 @@ export async function isIapAvailable(): Promise<boolean> {
 
 /** Récupère les prix réels des produits (depuis les stores) */
 export async function getProducts(): Promise<{ id: string; price: string; title: string }[]> {
-  if (!(await ensureConnected())) return [];
+  const iap = getIap();
+  if (!iap || !(await ensureConnected())) return [];
   try {
     const products = await iap.fetchProducts({ skus: Object.values(PRODUCT_IDS), type: 'subs' });
     if (!products) return [];
@@ -82,11 +115,12 @@ async function verifyReceiptServer(p: Purchase): Promise<boolean> {
  * configuration du store, fallback sur l'enregistrement local.
  */
 export async function purchase(plan: Plan): Promise<{ ok: boolean; message: string }> {
-  const sku = plan === 'yearly' ? PRODUCT_IDS.yearly : PRODUCT_IDS.monthly;
-  if (!(await ensureConnected())) {
+  const iap = getIap();
+  if (!iap || !(await ensureConnected())) {
     return { ok: false, message: 'Achats indisponibles ici (build natif requis).' };
   }
   try {
+    const sku = plan === 'yearly' ? PRODUCT_IDS.yearly : PRODUCT_IDS.monthly;
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -137,7 +171,8 @@ export async function purchase(plan: Plan): Promise<{ ok: boolean; message: stri
 
 /** Restaure les achats précédents (App Store / Play) — reçu vérifié côté serveur */
 export async function restorePurchases(): Promise<{ ok: boolean; message: string }> {
-  if (!(await ensureConnected())) {
+  const iap = getIap();
+  if (!iap || !(await ensureConnected())) {
     return { ok: false, message: 'Restauration indisponible ici (build natif requis).' };
   }
   try {
