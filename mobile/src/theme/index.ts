@@ -95,24 +95,12 @@ export const typography = {
 } as const;
 
 export const shadows = {
-  card: {
-    boxShadow: '0 4px 14px rgba(14, 27, 44, 0.06), 0 1px 3px rgba(14, 27, 44, 0.04)',
-    elevation: 2,
-  },
-  cta: {
-    boxShadow: '0 10px 24px rgba(255, 90, 31, 0.38), 0 2px 6px rgba(255, 90, 31, 0.22)',
-    elevation: 6,
-  },
-  /** Relief 3D : ombre portée colorée par pilier (effet « carte qui flotte ») */
-  lift: (color: string): ViewStyle => ({
-    boxShadow: `0 12px 28px ${color}33, 0 4px 10px ${color}1f`,
-    elevation: 5,
-  }),
-  /** Halo coloré (badges, icônes actives) */
-  glow: (color: string): ViewStyle => ({
-    boxShadow: `0 0 18px ${color}55`,
-    elevation: 4,
-  }),
+  card: {},
+  cta: {},
+  /** Relief 3D : ombre portée colorée par pilier (effet « carte qui flotte ») — désactivé (feedback design : zéro ombre) */
+  lift: (_color: string): ViewStyle => ({}),
+  /** Halo coloré (badges, icônes actives) — désactivé (feedback design : zéro ombre) */
+  glow: (_color: string): ViewStyle => ({}),
 } as const;
 
 export const theme = { colors, gradients, radii, spacing, typography, shadows };

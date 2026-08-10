@@ -15,6 +15,7 @@ import { useDashboard } from '../hooks/useData';
 import { useSubscription } from '../hooks/useSubscription';
 import { supabase } from '../lib/supabase';
 import { colors, radii, shadows, spacing, typography } from '../theme';
+import { s } from '../lib/scale';
 import type { RootStackParamList } from '../navigation/types';
 
 export default function DashboardScreen() {
@@ -143,15 +144,15 @@ export default function DashboardScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
-  content: { padding: spacing.xl, paddingBottom: 40 },
+  content: { padding: s(spacing.xl), paddingBottom: s(40) },
   section: {
     ...typography.label,
-    fontSize: 12,
+    fontSize: s(12),
     letterSpacing: 1.2,
     textTransform: 'uppercase',
     color: colors.muted,
-    marginTop: spacing.xxl,
-    marginBottom: spacing.md,
+    marginTop: s(spacing.xxl),
+    marginBottom: s(spacing.md),
   },
   ghost: {
     flexDirection: 'row',
@@ -161,33 +162,33 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: colors.line,
     borderRadius: radii.lg,
-    padding: spacing.lg,
+    padding: s(spacing.lg),
     ...shadows.lift(colors.purple),
   },
-  ghostText: { ...typography.label, fontSize: 15, color: colors.ink, flex: 1 },
+  ghostText: { ...typography.label, fontSize: s(15), color: colors.ink, flex: 1 },
   premiumBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 13,
     backgroundColor: colors.ink,
     borderRadius: radii.lg,
-    padding: spacing.lg,
-    marginBottom: spacing.md,
+    padding: s(spacing.lg),
+    marginBottom: s(spacing.md),
     ...shadows.lift(colors.gold),
   },
   premiumBannerOn: { borderWidth: 1, borderColor: colors.gold },
   premiumCrown: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
+    width: s(36),
+    height: s(36),
+    borderRadius: s(12),
     backgroundColor: colors.sport,
     alignItems: 'center',
     justifyContent: 'center',
     ...shadows.glow(colors.sport),
   },
-  premiumText: { ...typography.label, fontSize: 15, color: colors.white, flex: 1 },
-  premiumSub: { ...typography.body, fontSize: 11, color: 'rgba(255,255,255,0.6)' },
-  spacesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  premiumText: { ...typography.label, fontSize: s(15), color: colors.white, flex: 1, flexShrink: 1 },
+  premiumSub: { ...typography.body, fontSize: s(11), color: 'rgba(255,255,255,0.6)' },
+  spacesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: s(10) },
   spaceCard: {
     flexGrow: 1,
     flexBasis: '30%',
@@ -195,13 +196,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: radii.lg,
-    padding: spacing.md,
+    padding: s(spacing.md),
     alignItems: 'center',
     gap: 6,
     ...shadows.card,
   },
-  spaceTitle: { ...typography.label, fontSize: 14, color: colors.ink },
-  spaceSub: { ...typography.caption, fontSize: 10, color: colors.muted },
+  spaceTitle: { ...typography.label, fontSize: s(14), color: colors.ink },
+  spaceSub: { ...typography.caption, fontSize: s(10), color: colors.muted },
   rewardsLink: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -210,9 +211,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#F0DFB8',
     borderRadius: radii.lg,
-    padding: spacing.lg,
-    marginTop: spacing.md,
+    padding: s(spacing.lg),
+    marginTop: s(spacing.md),
     ...shadows.lift(colors.gold),
   },
-  rewardsText: { ...typography.label, fontSize: 15, color: colors.ink, flex: 1 },
+  rewardsText: { ...typography.label, fontSize: s(15), color: colors.ink, flex: 1, flexShrink: 1 },
 });

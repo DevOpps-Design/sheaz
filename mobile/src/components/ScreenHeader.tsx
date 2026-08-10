@@ -1,12 +1,13 @@
 /**
  * SHEAZ — ScreenHeader
  * En-tête standard : titre (avec accent Playfair pour les moments clés),
- * sous-titre, bouton retour optionnel, avatar.
+ * sous-titre, bouton retour optionnel, avatar. Tailles scalées petits écrans.
  */
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { colors, spacing, typography } from '../theme';
+import { s } from '../lib/scale';
 
 interface ScreenHeaderProps {
   title: string;
@@ -20,8 +21,8 @@ export default function ScreenHeader({ title, accent, subtitle, avatar, right }:
   return (
     <View style={styles.wrap}>
       <View style={styles.top}>
-        {subtitle ? <Text style={styles.greet}>{subtitle}</Text> : null}
-        <Text style={styles.title}>
+        {subtitle ? <Text style={styles.greet} numberOfLines={1}>{subtitle}</Text> : null}
+        <Text style={styles.title} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
           {title}
           {accent ? <Text style={styles.accent}> {accent}</Text> : null}
         </Text>
@@ -40,20 +41,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.xl,
+    marginBottom: s(spacing.xl),
+    gap: s(10),
   },
   top: {
     flexShrink: 1,
   },
   greet: {
     ...typography.body,
-    fontSize: 14,
+    fontSize: s(14),
     color: colors.muted,
   },
   title: {
     ...typography.display,
-    fontSize: typography.scale.title,
-    lineHeight: 30,
+    fontSize: s(27),
+    lineHeight: s(30),
     color: colors.ink,
   },
   accent: {
@@ -61,16 +63,16 @@ const styles = StyleSheet.create({
     color: colors.blue,
   },
   avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: s(44),
+    height: s(44),
+    borderRadius: s(22),
     backgroundColor: colors.sport,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarText: {
     ...typography.display,
-    fontSize: 17,
+    fontSize: s(17),
     color: colors.white,
   },
 });

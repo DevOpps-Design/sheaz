@@ -1,7 +1,7 @@
 /**
  * SHEAZ — PillarCard
  * Carte « pilier » du dashboard : anneau de progression + infos + chip.
- * Un pilier par carte (layout aérien validé).
+ * Un pilier par carte (layout aérien validé). Tailles scalées pour petits écrans.
  */
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -10,6 +10,7 @@ import Svg, { Circle } from 'react-native-svg';
 import IconBadge from './IconBadge';
 import type { IconName } from './IconBadge';
 import { colors, radii, shadows, spacing, typography } from '../theme';
+import { s } from '../lib/scale';
 
 interface PillarCardProps {
   title: string;
@@ -31,8 +32,8 @@ export default function PillarCard({
   chipColor,
   icon,
 }: PillarCardProps) {
-  const size = 88;
-  const stroke = 9;
+  const size = s(88);
+  const stroke = s(9);
   const r = (size - stroke) / 2 - 4;
   const circumference = 2 * Math.PI * r;
   const offset = circumference * (1 - percent / 100);
@@ -56,17 +57,17 @@ export default function PillarCard({
             />
           </Svg>
           <View style={styles.pctWrap}>
-            {icon ? <IconBadge icon={icon} color={color} size={46} glow={false} /> : (
+            {icon ? <IconBadge icon={icon} color={color} size={s(46)} glow={false} /> : (
               <Text style={styles.pct}>{percent}%</Text>
             )}
           </View>
         </View>
         <View style={styles.info}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.desc}>{description}</Text>
-          <View style={[styles.chip, { borderColor: colors.line }]}>
+          <Text style={styles.title} numberOfLines={1}>{title}</Text>
+          <Text style={styles.desc} numberOfLines={2}>{description}</Text>
+          <View style={styles.chip}>
             <View style={[styles.dot, { backgroundColor: chipColor }]} />
-            <Text style={styles.chipText}>{chip}</Text>
+            <Text style={styles.chipText} numberOfLines={1}>{chip}</Text>
           </View>
         </View>
       </View>
@@ -83,13 +84,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: radii.lg,
-    padding: spacing.xl,
-    marginBottom: spacing.lg,
+    padding: s(spacing.xl),
+    marginBottom: s(spacing.lg),
   },
   top: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.lg,
+    gap: s(spacing.lg),
   },
   pctWrap: {
     position: 'absolute',
@@ -102,20 +103,21 @@ const styles = StyleSheet.create({
   },
   pct: {
     ...typography.display,
-    fontSize: 19,
+    fontSize: s(19),
     color: colors.ink,
   },
   info: {
     flex: 1,
+    flexShrink: 1,
   },
   title: {
     ...typography.display,
-    fontSize: 17,
+    fontSize: s(17),
     color: colors.ink,
   },
   desc: {
     ...typography.body,
-    fontSize: 13,
+    fontSize: s(13),
     color: colors.muted,
     marginTop: 2,
   },
@@ -127,9 +129,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.paper,
     borderWidth: 1,
     borderRadius: radii.pill,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
+    paddingHorizontal: s(12),
+    paddingVertical: s(5),
     marginTop: 9,
+    flexShrink: 1,
   },
   dot: {
     width: 7,
@@ -138,15 +141,15 @@ const styles = StyleSheet.create({
   },
   chipText: {
     ...typography.label,
-    fontSize: 12,
+    fontSize: s(12),
     color: colors.ink,
   },
   bar: {
-    height: 8,
+    height: s(8),
     backgroundColor: colors.line,
     borderRadius: radii.pill,
     overflow: 'hidden',
-    marginTop: spacing.lg,
+    marginTop: s(spacing.lg),
   },
   barFill: {
     height: '100%',

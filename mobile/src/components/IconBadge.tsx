@@ -1,25 +1,24 @@
 /**
  * SHEAZ — IconBadge
- * Badge « relief 3D » : dégradé coloré + icône blanche + halo.
- * Utilisé pour les piliers, récompenses, habitudes et actions.
+ * Badge plat : fond coloré uni + icône blanche (variante soft = fond teinté + icône colorée).
+ * Zéro ombre, zéro dégradé (feedback design 2026-08-10).
  */
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 
-import { colors, radii, shadows } from '../theme';
+import { colors, shadows } from '../theme';
 
 export type IconName = keyof typeof MaterialCommunityIcons.glyphMap;
 
 interface IconBadgeProps {
   icon: IconName;
-  /** Couleur forte du pilier (le dégradé part de cette couleur vers une teinte claire) */
+  /** Couleur forte du pilier (fond du badge) */
   color: string;
   size?: number;
-  /** Icône blanche (dégradé plein) ou couleur forte (fond soft) */
+  /** Icône blanche (fond plein) ou couleur forte (fond soft) */
   variant?: 'solid' | 'soft';
-  /** Halo coloré autour du badge */
+  /** Halo coloré autour du badge (désactivé par défaut — zéro ombre) */
   glow?: boolean;
 }
 
@@ -28,7 +27,7 @@ export default function IconBadge({
   color,
   size = 44,
   variant = 'solid',
-  glow = true,
+  glow = false,
 }: IconBadgeProps) {
   const iconSize = Math.round(size * 0.5);
   const soft = variant === 'soft';
@@ -41,28 +40,17 @@ export default function IconBadge({
         glow && shadows.glow(color),
       ]}
     >
-      {soft ? (
-        <View
-          style={[
-            styles.inner,
-            {
-              backgroundColor: `${color}1A`,
-              borderRadius: size * 0.32,
-            },
-          ]}
-        >
-          <MaterialCommunityIcons name={icon} size={iconSize} color={color} />
-        </View>
-      ) : (
-        <LinearGradient
-          colors={[color, `${color}B3`]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[styles.inner, { borderRadius: size * 0.32 }]}
-        >
-          <MaterialCommunityIcons name={icon} size={iconSize} color={colors.white} />
-        </LinearGradient>
-      )}
+      <View
+        style={[
+          styles.inner,
+          {
+            backgroundColor: soft ? `${color}1A` : color,
+            borderRadius: size * 0.32,
+          },
+        ]}
+      >
+        <MaterialCommunityIcons name={icon} size={iconSize} color={soft ? color : colors.white} />
+      </View>
     </View>
   );
 }
