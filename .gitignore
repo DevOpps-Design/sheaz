@@ -43,3 +43,10 @@ Thumbs.db
 07-specifications-techniques.md
 brand/
 design/
+
+# Outils locaux de test mobile (jamais dans l'archive EAS)
+*.apk
+cloudflared.exe
+expo-versions.json
+qr-*.png
+check-accounts.sh
