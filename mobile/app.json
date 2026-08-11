@@ -45,6 +45,12 @@
           "defaultChannel": "rappels"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "05671fc8-01a0-4e49-8638-38919d53d818"
+      }
+    },
+    "owner": "sarakawa"
   }
 }
